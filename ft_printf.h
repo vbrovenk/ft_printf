@@ -22,8 +22,9 @@ typedef	struct s_box
 	int			space;
 	int			zero;
 	int			width;
+	int			hash;
+	int			precision;
 	char		type;
-	int			length;
 }				t_box;
 
 #endif
