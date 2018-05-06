@@ -27,6 +27,89 @@ int count_width(const char *str)
 	return (i);
 }
 
+void precision(int num, t_box *info)
+{
+	info->precision -= ft_countdigits(num);
+	if (info->precision > 0)
+	{
+		info->width -= info->precision;
+	}
+}
+
+void print(int num, t_box *info)
+{
+	if (num < 0 && info->precision > 0)
+		// +1 fot sign '-'
+		info->precision  +=  1;
+
+	// printf("width %d\n", info->width);
+	// printf("precision %d\n", info->precision);
+	// printing '-' before zeros
+	if (num < 0 && info->precision > 0)
+		info->width--;
+	if (num < 0 && info->zero == 1)
+	{
+		write(1, "-", 1);
+		num = -num;
+		info->plus = 0; // becouse don't need to print '+'
+	}
+	if (info->minus == 0)
+	{
+		// '+' before zeros
+		if (info->zero == 1 && info->precision == 0)
+		{
+
+			if (num >= 0 && info->plus == 1)
+			{
+				printf("%d\n", num);
+				write (1, "+", 1);
+			}
+			while (info->width-- > 0)
+				write(1, "0", 1);
+		}
+		else
+		{
+			while (info->width-- > 0)
+				write(1, " ", 1);
+			if (num >= 0 && info->plus == 1)
+				write(1, "+", 1);
+			if (info->precision > 0)
+			{
+				if (num < 0)
+				{
+					write(1, "-", 1);
+					num = -num;
+				}
+				while (info->precision-- > 0)
+					write(1, "0", 1);
+			}
+		}
+		ft_putnbr(num);
+		return ;
+	}
+	else
+	{
+		if (num >= 0 && info->plus == 1 && info->zero == 1)
+			write(1, "+", 1);
+		if (info->precision != 0)
+		{
+			if (num < 0)
+			{
+				write(1, "-", 1);
+				num = -num;
+			}
+			while (info->precision-- > 0)
+				write(1, "0", 1);
+		}
+		ft_putnbr(num);
+		while (info->width-- > 0)
+			write(1, " ", 1);
+
+		return ;
+	}
+	ft_putnbr(num);
+}
+
 void print_d(va_list arg, t_box *info, const char *format)
 {
 	int	num = va_arg(arg, int);
@@ -39,47 +122,15 @@ void print_d(va_list arg, t_box *info, const char *format)
 		info->width--;
 		write(1, " ", 1);
 	}
-	if (num >= 0 && info->plus == 1 && info->zero == 1\
-		&& info->minus == 0)
-		write(1, "+", 1);
-	if (info->minus == 0)
-	{
-		// printing '-' before zeros
-		if (num < 0 && info->zero == 1)
-		{
-			write(1, "-", 1);
-			num = -num;
-		}
-		// don't work precision
-		if (info->precision && (info->width >= info->precision))
-		{
-			info->width -= info->precision;
-			info->width += ft_countdigits(num);
-		}
-		while (info->width-- > 0)
-			(info->zero) ? write(1, "0", 1) : write(1, " ", 1);
 
-		if (num >= 0 && info->plus == 1 && info->zero == 0)
-				write(1, "+", 1);
-		if (info->precision != 0)
-		{
-			info->precision -= ft_countdigits(num);
-			while (info->precision-- > 0)
-				write(1, "0", 1);
-		}
-		ft_putnbr(num);
-		return ;
-	}
-	else
+	if (num >= 0 && info->plus == 1 && info->zero == 0 && info->minus == 1)
 	{
-		if (num >= 0 && info->plus == 1)
-			write(1, "+", 1);
-		ft_putnbr(num);
-		while (info->width-- > 0)
-			write(1, " ", 1);
-		return ;
-	}	
-	ft_putnbr(num);
+		write(1, "+", 1);
+	}
+	/* ================== Precision ===================== */
+	if (info->precision != 0)
+		precision(num, info);
+	print(num, info);
 }
 
 void print_x(va_list arg, t_box *info, const char *format)
@@ -168,43 +219,49 @@ int ft_printf(const char *format, ...)
 					info.minus = 1;
 					i++;
 				}
-				if (format[i] == '+')
+				else if (format[i] == '+')
 				{
 					info.plus = 1;
 					i++;
 				}
-				if (format[i] == ' ')
+				else if (format[i] == ' ')
 				{
 					info.space = 1;
 					while (format[i] == ' ')
 						i++;
 				}
-				if (format[i] == '#')
+				else if (format[i] == '#')
 				{
 					info.hash = 1;
 					i++;
 				}
 				// flag 0
-				if (format[i] == '0')
+				else if (format[i] == '0')
 				{
 					info.zero = 1;
 					i++;
 				}
 				// width
-				if (format[i] > '0' && format[i] <= '9')
+				else if (format[i] > '0' && format[i] <= '9')
 				{
 					temp = i;
 					i += count_width(&format[i]);
 					number = ft_strsub(format, temp, i - temp);
 					info.width = ft_atoi(number);
 				}
-				if (format[i] == '.')
+				else if (format[i] == '.')
 				{
 					i++;
 					temp = i;
 					i += count_width(&format[i]);
 					number = ft_strsub(format, temp, i - temp);
 					info.precision = ft_atoi(number);
+				}
+				else
+				{
+					if (is_correct_type(format[i]))
+						break ;
+					i++;
 				}
 			}
 			info.type = format[i];
@@ -260,18 +317,240 @@ int ft_printf(const char *format, ...)
 	return (1);
 }
 
+void	tests_integer(void)
+{
+	int i = 74395;
+	int j;
+	int min = -123456;
+	int max = 2147483647;
+
+	ft_printf("========== simple ==========\n"); j = 1;
+
+	printf("%d OR: %i@\n", j, i); // simple
+	ft_printf("%d FT: %i@\n", j, i);
+	j++;
+	printf("%d OR: %i@\n", j, -i);
+	ft_printf("%d FT: %i@\n", j, -i);
+	j++;
+	printf("%d OR: %i@\n", j, 0);
+	ft_printf("%d FT: %i@\n", j, 0);
+	j++;
+	printf("%d OR: %i@\n", j, min);
+	ft_printf("%d FT: %i@\n", j, min);
+	j++;
+	printf("%d OR: %i@\n", j, max);
+	ft_printf("%d FT: %i@\n", j, max);
+	j++;
+
+	ft_printf("========== width ==========\n"); j = 1;
+
+	printf("%d OR: %3i@\n", j, i);
+	ft_printf("%d FT: %3i@\n", j, i);
+	j++;
+	printf("%d OR: %20i@\n", j, i);
+	ft_printf("%d FT: %20i@\n", j, i);
+	j++;
+	printf("%d OR: %3i@\n", j, -i);
+	ft_printf("%d FT: %3i@\n", j, -i);
+	j++;
+	printf("%d OR: %20i@\n", j, -i);
+	ft_printf("%d FT: %20i@\n", j, -i);
+	j++;
+	printf("%d OR: %10i@\n", j, 0);
+	ft_printf("%d FT: %10i@\n", j, 0);
+	j++;
+	printf("%d OR: %20i@\n", j, min);
+	ft_printf("%d FT: %20i@\n", j, min);
+	j++;
+	printf("%d OR: %20i@\n", j, max);
+	ft_printf("%d FT: %20i@\n", j, max);
+	j++;
+
+	ft_printf("========== precision ==========\n"); j = 1;
+
+	printf("%d OR: %.3i@\n", j, i);
+	ft_printf("%d FT: %.3i@\n", j, i);
+	j++;
+	printf("%d OR: %.20i@\n", j, i);
+	ft_printf("%d FT: %.20i@\n", j, i);
+	j++;
+	printf("%d OR: %.3i@\n", j, -i);
+	ft_printf("%d FT: %.3i@\n", j, -i);
+	j++;
+	printf("%d OR: %.20i@\n", j, -i);
+	ft_printf("%d FT: %.20i@\n", j, -i);
+	j++;
+	printf("%d OR: %.10i@\n", j, 0);
+	ft_printf("%d FT: %.10i@\n", j, 0);
+	j++;
+	printf("%d OR: %.20i@\n", j, min);
+	ft_printf("%d FT: %.20i@\n", j, min);
+	j++;
+	printf("%d OR: %.20i@\n", j, max);
+	ft_printf("%d FT: %.20i@\n", j, max);
+	j++;
+
+	ft_printf("========== width + precision ==========\n"); j = 1;
+
+	printf("%d OR: %1.3i@\n", j, i);
+	ft_printf("%d FT: %1.3i@\n", j, i);
+	j++;
+	printf("%d OR: %1.20i@\n", j, i);
+	ft_printf("%d FT: %1.20i@\n", j, i);
+	j++;
+	printf("%d OR: %3.20i@\n", j, i);
+	ft_printf("%d FT: %3.20i@\n", j, i);
+	j++;
+	printf("%d OR: %10.20i@\n", j, i);
+	ft_printf("%d FT: %10.20i@\n", j, i);
+	j++;
+	printf("%d OR: %20.10i@\n", j, i);
+	ft_printf("%d FT: %20.10i@\n", j, i);
+	j++;
+	printf("%d OR: %20.5i@\n", j, i);
+	ft_printf("%d FT: %20.5i@\n", j, i);
+	j++;
+	printf("%d OR: %1.3i@\n", j, -i);
+	ft_printf("%d FT: %1.3i@\n", j, -i);
+	j++;
+	printf("%d OR: %1.20i@\n", j, -i);
+	ft_printf("%d FT: %1.20i@\n", j, -i);
+	j++;
+	printf("%d OR: %3.20i@\n", j, -i);
+	ft_printf("%d FT: %3.20i@\n", j, -i);
+	j++;
+	printf("%d OR: %10.20i@\n", j, -i);
+	ft_printf("%d FT: %10.20i@\n", j, -i);
+	j++;
+	printf("%d OR: %5.10i@\n", j, 0);
+	ft_printf("%d FT: %5.10i@\n", j, 0);
+	j++;
+	printf("%d OR: %10.5i@\n", j, 0);
+	ft_printf("%d FT: %10.5i@\n", j, 0);
+	j++;
+	printf("%d OR: %10.20i@\n", j, min);
+	ft_printf("%d FT: %10.20i@\n", j, min);
+	j++;
+	printf("%d OR: %20.10i@\n", j, min);
+	ft_printf("%d FT: %20.10i@\n", j, min);
+	j++;
+	printf("%d OR: %10.20i@\n", j, max);
+	ft_printf("%d FT: %10.20i@\n", j, max);
+	j++;
+
+	ft_printf("========== minus + width ==========\n"); j = 1;
+
+	printf("%d OR: %-3i@\n", j, i);
+	ft_printf("%d FT: %-3i@\n", j, i);
+	j++;
+	printf("%d OR: %-20i@\n", j, i);
+	ft_printf("%d FT: %-20i@\n", j, i);
+	j++;
+	printf("%d OR: %-3i@\n", j, -i);
+	ft_printf("%d FT: %-3i@\n", j, -i);
+	j++;
+	printf("%d OR: %-20i@\n", j, -i);
+	ft_printf("%d FT: %-20i@\n", j, -i);
+	j++;
+	printf("%d OR: %-10i@\n", j, 0);
+	ft_printf("%d FT: %-10i@\n", j, 0);
+	j++;
+	printf("%d OR: %-20i@\n", j, min);
+	ft_printf("%d FT: %-20i@\n", j, min);
+	j++;
+	printf("%d OR: %-20i@\n", j, max);
+	ft_printf("%d FT: %-20i@\n", j, max);
+	j++;
+
+	
+
+	ft_printf("========== plus ==========\n"); j = 1;
+
+	printf("%d OR: %i@\n", j, i); // simple
+	ft_printf("%d FT: %i@\n", j, i);
+	j++;
+	printf("%d OR: %i@\n", j, -i);
+	ft_printf("%d FT: %i@\n", j, -i);
+	j++;
+	printf("%d OR: %i@\n", j, 0);
+	ft_printf("%d FT: %i@\n", j, 0);
+	j++;
+	printf("%d OR: %i@\n", j, min);
+	ft_printf("%d FT: %i@\n", j, min);
+	j++;
+	printf("%d OR: %i@\n", j, max);
+	ft_printf("%d FT: %i@\n", j, max);
+	j++;
+
+	ft_printf("========== width + precision + minus ==========\n"); j = 1;
+
+	printf("%d OR: %-1.3i@\n", j, i);
+	ft_printf("%d FT: %-1.3i@\n", j, i);
+	j++;
+	printf("%d OR: %-1.20i@\n", j, i);
+	ft_printf("%d FT: %-1.20i@\n", j, i);
+	j++;
+	printf("%d OR: %-3.20i@\n", j, i);
+	ft_printf("%d FT: %-3.20i@\n", j, i);
+	j++;
+	printf("%d OR: %-10.20i@\n", j, i);
+	ft_printf("%d FT: %-10.20i@\n", j, i);
+	j++;
+	printf("%d OR: %-20.10i@\n", j, i);
+	ft_printf("%d FT: %-20.10i@\n", j, i);
+	j++;
+	printf("%d OR: %-20.5i@\n", j, i);
+	ft_printf("%d FT: %-20.5i@\n", j, i);
+	j++;
+	printf("%d OR: %-1.3i@\n", j, -i);
+	ft_printf("%d FT: %-1.3i@\n", j, -i);
+	j++;
+	printf("%d OR: %-1.20i@\n", j, -i);
+	ft_printf("%d FT: %-1.20i@\n", j, -i);
+	j++;
+	printf("%d OR: %-3.20i@\n", j, -i);
+	ft_printf("%d FT: %-3.20i@\n", j, -i);
+	j++;
+	printf("%d OR: %-10.20i@\n", j, -i);
+	ft_printf("%d FT: %-10.20i@\n", j, -i);
+	j++;
+	printf("%d OR: %-5.10i@\n", j, 0);
+	ft_printf("%d FT: %-5.10i@\n", j, 0);
+	j++;
+	printf("%d OR: %-10.5i@\n", j, 0);
+	ft_printf("%d FT: %-10.5i@\n", j, 0);
+	j++;
+	printf("%d OR: %-10.20i@\n", j, min);
+	ft_printf("%d FT: %-10.20i@\n", j, min);
+	j++;
+	printf("%d OR: %-20.10i@\n", j, min);
+	ft_printf("%d FT: %-20.10i@\n", j, min);
+	j++;
+	printf("%d OR: %-10.20i@\n", j, max);
+	ft_printf("%d FT: %-10.20i@\n", j, max);
+	j++;
+
+	// printf("%0i\n", i);
+	// printf("% +q\n", i);
+	// printf("%-0i\n", i);
+	// printf("%+i\n", i);
+	// printf("%#i\n", i);
+}
 int main()
 {
 	char n[] = "Chaynik";
-	int nbr = 26;
+	int nbr = -123456;
 	int nbr2 = 228;
 	// int my_ret, orig_ret;
 
-	ft_printf("%-9.5x\n", nbr);
+	// ft_printf("%20.10d\n", nbr);
 
 	/* ----------ORIGINAL----------*/
 
-	printf("%-9.5x\n", nbr);
-	// printf("%010d\n", 12345);
+	char c = 130;
+	printf("%hhd\n", c);
+
+	// tests_integer();
 	return (0);
 }
+
