@@ -15,6 +15,45 @@
 #include "libft/libft.h"
 #include "ft_printf.h"
 
+int	ft_countdigits_my(intmax_t n)
+{
+	int	i;
+
+	i = 0;
+	if (n == 0)
+		return (1);
+	if (n < 0)
+		i = 1;
+	while (n)
+	{
+		i++;
+		n /= 10;
+	}
+	return (i);
+}
+
+
+void	ft_putnbr_my(intmax_t n)
+{
+	// if (n == (-2147483648))
+	// {
+	// 	write(1, "-2147483648", 11);
+	// 	return ;
+	// }
+	if (n < 0)
+	{
+		n = -n;
+		ft_putchar('-');
+	}
+	if (n >= 10)
+	{
+		ft_putnbr_my(n / 10);
+		ft_putchar((n % 10) + '0');
+	}
+	else
+		ft_putchar(n + '0');
+}
+
 int count_width(const char *str)
 {
 	int i;
@@ -27,21 +66,20 @@ int count_width(const char *str)
 	return (i);
 }
 
-void precision(int num, t_box *info)
+void precision(intmax_t num, t_box *info)
 {
-	info->precision -= ft_countdigits(num);
+	info->precision -= ft_countdigits_my(num);
 	if (info->precision > 0)
 	{
 		info->width -= info->precision;
 	}
 }
 
-void print(int num, t_box *info)
+void print(intmax_t num, t_box *info)
 {
 	if (num < 0 && info->precision > 0)
 		// +1 fot sign '-'
 		info->precision  +=  1;
-
 	// printf("width %d\n", info->width);
 	// printf("precision %d\n", info->precision);
 	// printing '-' before zeros
@@ -84,7 +122,7 @@ void print(int num, t_box *info)
 					write(1, "0", 1);
 			}
 		}
-		ft_putnbr(num);
+		ft_putnbr_my(num);
 		return ;
 	}
 	else
@@ -101,20 +139,41 @@ void print(int num, t_box *info)
 			while (info->precision-- > 0)
 				write(1, "0", 1);
 		}
-		ft_putnbr(num);
+		ft_putnbr_my(num);
 		while (info->width-- > 0)
 			write(1, " ", 1);
 
 		return ;
 	}
-	ft_putnbr(num);
+	ft_putnbr_my(num);
 }
 
 void print_d(va_list arg, t_box *info, const char *format)
 {
-	int	num = va_arg(arg, int);
+	intmax_t num;
+	/*============= length =============*/
+	if (info->length == '1')
+	{
+		num = (char)va_arg(arg, int);
+	}
+	else if (info->length == 'h')
+	{
+		num = (short)va_arg(arg, int);
+	}
+	else if (info->length == 'l')
+	{
+		num = va_arg(arg, long);
+	}
+	else if (info->length == '2')
+	{
+		num = va_arg(arg, long long);
+	}
+	else
+		num = va_arg(arg, int);
 
-	info->width -= ft_countdigits(num);
+	// int num = va_arg(arg, int);
+
+	info->width -= ft_countdigits_my(num);
 	if (num >= 0 && info->plus == 1)
 		info->width--;
 	if (num >= 0 && info->space == 1 && info->plus == 0)
@@ -166,9 +225,10 @@ void reset_box(t_box *info)
 	info->plus = 0;
 	info->space = 0;
 	info->zero = 0;
-	info->width = 0;
 	info->hash = 0;
+	info->width = 0;
 	info->precision = 0;
+	// info->length = 0;
 	info->type = '\0';
 }
 
@@ -178,9 +238,10 @@ void print_struct(t_box info)
 	printf("info.plus = %d\n", info.plus);
 	printf("info.space = %d\n", info.space);
 	printf("info.zero = %d\n", info.zero);
-	printf("info.width = %d\n", info.width);
 	printf("info.hash = %d\n", info.hash);
+	printf("info.width = %d\n", info.width);
 	printf("info.precision = %d\n", info.precision);
+	printf("info.length = %c\n", info.length);
 	printf("info.type = %c\n", info.type);
 }
 
@@ -201,7 +262,7 @@ int ft_printf(const char *format, ...)
 	va_list arg;
 	t_box info;
 	int temp;		// remember index for getting number
-	char *number;   // getting str(nuber) for ft_atoi
+	char *number;   // getting str(number) for ft_atoi
 
 	va_start(arg, format);
 	i = 0;
@@ -212,8 +273,9 @@ int ft_printf(const char *format, ...)
 			reset_box(&info);
 			i++;
 			/* =================== Parse flags ==================== */
-			while (!is_correct_type(format[i]))
+			while (format[i] && !is_correct_type(format[i]))
 			{
+				// if ()
 				if (format[i] == '-')
 				{
 					info.minus = 1;
@@ -256,6 +318,36 @@ int ft_printf(const char *format, ...)
 					i += count_width(&format[i]);
 					number = ft_strsub(format, temp, i - temp);
 					info.precision = ft_atoi(number);
+				}
+				else if (format[i] == 'h' && format[i + 1] == 'h')
+				{
+					info.length = '1';
+					i += 2;
+				}
+				else if (format[i] == 'h')
+				{
+					info.length = 'h';
+					i++;
+				}
+				else if (format[i] == 'l' && format[i + 1] == 'l')
+				{
+					info.length = '2';
+					i += 2;
+				}
+				else if (format[i] == 'l')
+				{
+					info.length = 'l';
+					i++;
+				}
+				else if (format[i] == 'j')
+				{
+					info.length = 'j';
+					i++;
+				}
+				else if (format[i] == 'z')
+				{
+					info.length = 'z';
+					i++;
 				}
 				else
 				{
@@ -536,21 +628,93 @@ void	tests_integer(void)
 	// printf("%+i\n", i);
 	// printf("%#i\n", i);
 }
+
+// void test_42(void)
+// {
+// 	ft_printf("%d\n", 2147483648);                  //-> "-2147483648"
+// 	   printf("%d\n", 2147483648);
+//  	ft_printf("%d\n", -2147483648);                 //-> "-2147483648"
+//  	   printf("%d\n", -2147483648);
+//  	ft_printf("%d\n", -2147483649);                 //-> "2147483647"
+//  	   printf("%d\n", -2147483649);
+//  	ft_printf("% d\n", 42);                         //-> " 42"
+//  	   printf("% d\n", 42);
+//  	ft_printf("% d\n", -42);                        //-> "-42"
+//  	   printf("% d\n", -42);
+//  	ft_printf("%+d\n", 42);                         //-> "+42"
+//  	   printf("%+d\n", 42);
+//  	ft_printf("%+d\n", -42);                        //-> "-42"
+//  	   printf("%+d\n", -42);
+//  	ft_printf("%+d\n", 0);                          //-> "+0"
+//  	   printf("%+d\n", 0);
+//  	// ft_printf("%+d\n", 4242424242424242424242);     //-> "-1"
+//  	   // printf("%+d\n", 4242424242424242424242);
+//  	ft_printf("% +d\n", 42);                        //-> "+42"
+//  	   printf("% +d\n", 42);
+//  	ft_printf("% +d\n", -42);                       //-> "-42"
+//  	   printf("% +d\n", -42);
+//  	ft_printf("%+ d\n", 42);                        //-> "+42"
+//  	   printf("%+ d\n", 42);
+//  	ft_printf("%+ d\n", -42);                       //-> "-42"
+//  	   printf("%+ d\n", -42);
+//  	ft_printf("%  +d\n", 42);                       //-> "+42"
+//  	   printf("%  +d\n", 42); 
+//  	ft_printf("%  +d\n", -42);                      //-> "-42"
+//  	   printf("%  +d\n", -42);
+//  	ft_printf("%+  d\n", 42);                       //-> "+42"
+//  	   printf("%+  d\n", 42);
+//  	ft_printf("%+  d\n", -42);                      //-> "-42"
+//  	   printf("%+  d\n", -42);
+//  	ft_printf("% ++d\n", 42);                       //-> "+42"
+//  	   printf("% ++d\n", 42);
+//  	ft_printf("% ++d\n", -42);                      //-> "-42"
+//  	   printf("% ++d\n", -42);
+//  	ft_printf("%++ d\n", 42);                       //-> "+42"
+//  	   printf("%++ d\n", 42);
+//  	ft_printf("%++ d\n", -42);                      //-> "-42"
+//  	   printf("%++ d\n", -42);
+//  	ft_printf("%0d\n", -42);                        //-> "-42"
+//  	   printf("%0d\n", -42);
+//  	ft_printf("%00d\n", -42);                       //-> "-42"
+//  	   printf("%00d\n", -42);
+//  	ft_printf("%5d\n", 42);                         //-> "   42"
+//  	   printf("%5d\n", 42);
+//  	ft_printf("%05d\n", 42);                        //-> "00042"
+//  	   printf("%05d\n", 42);
+//  	ft_printf("%0+5d\n", 42);                       //-> "+0042"
+//  	   printf("%0+5d\n", 42); 
+//  	ft_printf("%5d\n", -42);                        //-> "  -42"
+//  	   printf("%5d\n", -42); 
+//  	ft_printf("%05d\n", -42);                       //-> "-0042"
+//  	   printf("%05d\n", -42);
+//  	ft_printf("%0+5d\n", -42);                      //-> "-0042"
+//  	   printf("%0+5d\n", -42); 
+//  	ft_printf("%-5d\n", 42);                        //-> "42   "
+//  	   printf("%-5d\n", 42); 
+//  	ft_printf("%-05d\n", 42);                       //-> "42   "
+//  	   printf("%-05d\n", 42);
+//  	ft_printf("%-5d\n", -42);                       //-> "-42  "
+//  	   printf("%-5d\n", -42); 
+//  	ft_printf("%-05d\n", -42);                      //-> "-42  "
+//  	   printf("%-05d\n", -42);
+// }
+
 int main()
 {
 	char n[] = "Chaynik";
-	int nbr = -123456;
+	// long long nbr = -9223372036854775808;
+	int nbr = -2147483649;
 	int nbr2 = 228;
 	// int my_ret, orig_ret;
 
-	// ft_printf("%20.10d\n", nbr);
+	ft_printf("%hd\n", nbr);
 
 	/* ----------ORIGINAL----------*/
 
-	char c = 130;
-	printf("%hhd\n", c);
+	printf("%hd\n", nbr);
 
 	// tests_integer();
+	// test_42();
 	return (0);
 }
 

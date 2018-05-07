@@ -21,9 +21,10 @@ typedef	struct s_box
 	int			plus;
 	int			space;
 	int			zero;
-	int			width;
 	int			hash;
+	int			width;
 	int			precision;
+	char		length;
 	char		type;
 }				t_box;
 
