@@ -89,7 +89,7 @@ void print(intmax_t num, t_box *info)
 	{
 		write(1, "-", 1);
 		num = -num;
-		info->plus = 0; // becouse don't need to print '+'
+		info->plus = 0;   // becouse don't need to print '+'
 	}
 	if (info->minus == 0)
 	{
@@ -1293,8 +1293,8 @@ void	tests_integer(void)
 	j++;
 }
 
-// void test_42(void)
-// {
+void test_42(void)
+{
 // 	ft_printf("%d\n", 2147483648);                  //-> "-2147483648"
 // 	   printf("%d\n", 2147483648);
 //  	ft_printf("%d\n", -2147483648);                 //-> "-2147483648"
@@ -1361,7 +1361,87 @@ void	tests_integer(void)
 //  	   printf("%-5d\n", -42); 
 //  	ft_printf("%-05d\n", -42);                      //-> "-42  "
 //  	   printf("%-05d\n", -42);
-// }
+	    ft_printf("%hd\n", 32767);                        //-> "32767"
+	       printf("%hd\n", 32767);
+        // ft_printf("%hd\n", −32768);                       //-> "0"
+           // printf("%hd\n", −32768);
+        ft_printf("%hd\n", 32768);                        //-> "-32768"
+           printf("%hd\n", 32768);
+        // ft_printf("%hd\n", −32769);                       //-> "0"
+           // printf("%hd\n", −32769);
+        ft_printf("%hhd\n", 127);                         //-> "127"
+           printf("%hhd\n", 127);
+        ft_printf("%hhd\n", 128);                         //-> "-128"
+           printf("%hhd\n", 128);
+        ft_printf("%hhd\n", -128);                        //-> "-128"
+           printf("%hhd\n", -128);
+        ft_printf("%hhd\n", -129);                        //-> "127"
+           printf("%hhd\n", -129);
+        ft_printf("%ld\n", 2147483647);                   //-> "2147483647"
+           printf("%ld\n", 2147483647);
+        ft_printf("%ld\n", -2147483648);                  //-> "-2147483648"
+           printf("%ld\n", -2147483648);
+        ft_printf("%ld\n", 2147483648);                   //-> "2147483648"
+           printf("%ld\n", 2147483648);
+        ft_printf("%ld\n", -2147483649);                  //-> "-2147483649"
+           printf("%ld\n", -2147483649);
+        ft_printf("%lld\n", 9223372036854775807);         //-> "9223372036854775807"
+           printf("%lld\n", 9223372036854775807);
+        ft_printf("%lld\n", -9223372036854775808);        //-> "-9223372036854775808"
+           printf("%lld\n", -9223372036854775808);
+        ft_printf("%jd\n", 9223372036854775807);          //-> "9223372036854775807"
+           printf("%jd\n", 9223372036854775807);
+        ft_printf("%jd\n", -9223372036854775808);         //-> "-9223372036854775808"
+           printf("%jd\n", -9223372036854775808);
+        ft_printf("%zd\n", 4294967295);                   //-> "4294967295"
+           printf("%zd\n", 4294967295);
+        ft_printf("%zd\n", 4294967296);                   //-> "4294967296"
+           printf("%zd\n", 4294967296);
+        ft_printf("%zd\n", -0);                           //-> "0"
+           printf("%zd\n", -0);
+        ft_printf("%zd\n", -1);                           //-> "-1"
+           printf("%zd\n", -1);
+        ft_printf("%d\n", 1);                             //-> "1"
+           printf("%d\n", 1);
+        ft_printf("%d %d\n", 1, -2);                      //-> "1 -2"
+           printf("%d %d\n", 1, -2);
+        ft_printf("%d %d %d\n", 1, -2, 33);               //-> "1 -2 33"
+           printf("%d %d %d\n", 1, -2, 33);
+        ft_printf("%d %d %d %d\n", 1, -2, 33, 42);        //-> "1 -2 33 42"
+           printf("%d %d %d %d\n", 1, -2, 33, 42);
+        ft_printf("%d %d %d %d gg!\n", 1, -2, 33, 42, 0); //-> "1 -2 33 42 gg!"
+           printf("%d %d %d %d gg!\n", 1, -2, 33, 42, 0);
+        ft_printf("%4.15d\n", 42);                        //-> "000000000000042"
+           printf("%4.15d\n", 42);
+        ft_printf("%.2d\n", 4242);                        //-> "4242"
+           printf("%.2d\n", 4242); 
+        ft_printf("%.10d\n", 4242);                       //-> "0000004242"
+           printf("%.10d\n", 4242);
+        ft_printf("%10.5d\n", 4242);                      //-> "     04242"
+           printf("%10.5d\n", 4242);
+        ft_printf("%-10.5d\n", 4242);                     //-> "04242     "
+           printf("%-10.5d\n", 4242);
+        ft_printf("% 10.5d\n", 4242);                     //-> "     04242"
+           printf("% 10.5d\n", 4242);
+        ft_printf("%+10.5d\n", 4242);                     //-> "    +04242"
+           printf("%+10.5d\n", 4242);
+        ft_printf("%-+10.5d\n", 4242);                    //-> "+04242    "
+           printf("%-+10.5d\n", 4242); 
+        ft_printf("%03.2d\n", 0);                         //-> " 00"
+           printf("%03.2d\n", 0);
+        ft_printf("%03.2d\n", 1);                         //-> " 01"
+           printf("%03.2d\n", 1);
+        ft_printf("%03.2d\n", -1);                        //-> "-01"
+           printf("%03.2d\n", -1);
+        ft_printf("@moulitest: %.10d\n", -42);            //-> "@moulitest: -0000000042"
+           printf("@moulitest: %.10d\n", -42);
+        ft_printf("@moulitest: %.d %.0d\n", 42, 43);      //-> "@moulitest: 42 43"
+           printf("@moulitest: %.d %.0d\n", 42, 43);
+        ft_printf("@moulitest: %.d %.0d\n", 0, 0);        //-> "@moulitest:  "
+           printf("@moulitest: %.d %.0d\n", 0, 0);
+        ft_printf("@moulitest: %5.d %5.0d\n", 0, 0);      //-> "@moulitest:            "
+           printf("@moulitest: %5.d %5.0d\n", 0, 0);
+}
 
 int main()
 {
@@ -1377,8 +1457,8 @@ int main()
 
 	// printf("%zd\n", nbr);
 
-	tests_integer();
-	// test_42();
+	// tests_integer();
+	test_42();
 	return (0);
 }
 
