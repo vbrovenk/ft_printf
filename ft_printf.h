@@ -14,6 +14,7 @@
 # define FT_PRINTF
 
 #include "libft/libft.h"
+#include <inttypes.h>  // for linux
 
 typedef	struct s_box
 {
@@ -24,8 +25,14 @@ typedef	struct s_box
 	int			hash;
 	int			width;
 	int			precision;
-	char		length;
+	char		*length;
 	char		type;
+	int start;
+	int sum_zeroes;
+	char *prefix;
 }				t_box;
+
+int	my_countdigits(intmax_t n);
+char			*my_itoa(intmax_t number);
 
 #endif

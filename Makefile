@@ -12,7 +12,7 @@
 
 NAME = a.out
 
-SRC = ft_printf.c
+SRC = ft_printf.c my_countdigits.c my_itoa.c
 
 OBJ = $(SRC:.c=.o)
 

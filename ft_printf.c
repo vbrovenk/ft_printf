@@ -10,247 +10,22 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdarg.h>
 #include <stdio.h>
-#include "libft/libft.h"
 #include "ft_printf.h"
+#include <stdarg.h>
 
-int	ft_countdigits_my(intmax_t n)
+int	is_length(char c)
 {
-	int	i;
-
-	i = 0;
-	if (n == 0)
+	if (c == 'h' || c == 'l' || c == 'j' || c == 'z')
 		return (1);
-	if (n < 0)
-		i = 1;
-	while (n)
-	{
-		i++;
-		n /= 10;
-	}
-	return (i);
+	return (0);
 }
 
-
-void	ft_putnbr_my(intmax_t n)
+int is_flag(char c)
 {
-	// if (n == (-2147483648))
-	// {
-	// 	write(1, "-2147483648", 11);
-	// 	return ;
-	// }
-	if (n < 0)
-	{
-		n = -n;
-		ft_putchar('-');
-	}
-	if (n >= 10)
-	{
-		ft_putnbr_my(n / 10);
-		ft_putchar((n % 10) + '0');
-	}
-	else
-		ft_putchar(n + '0');
-}
-
-int count_width(const char *str)
-{
-	int i;
-
-	i = 0;
-	while (str[i] && str[i] >= '0' && str[i] <= '9')
-	{
-		i++;
-	}
-	return (i);
-}
-
-void precision(intmax_t num, t_box *info)
-{
-	info->precision -= ft_countdigits_my(num);
-	if (info->precision > 0)
-	{
-		info->width -= info->precision;
-	}
-}
-
-void print(intmax_t num, t_box *info)
-{
-	if (num < 0 && info->precision > 0)
-		// +1 fot sign '-'
-		info->precision  +=  1;
-	// printf("width %d\n", info->width);
-	// printf("precision %d\n", info->precision);
-	// printing '-' before zeros
-	if (num < 0 && info->precision > 0)
-		info->width--;
-	if (num < 0 && info->zero == 1)
-	{
-		write(1, "-", 1);
-		num = -num;
-		info->plus = 0;   // becouse don't need to print '+'
-	}
-	if (info->minus == 0)
-	{
-		// '+' before zeros
-		if (info->zero == 1 && info->precision == 0)
-		{
-
-			if (num >= 0 && info->plus == 1)
-			{
-				printf("%d\n", num);
-				write (1, "+", 1);
-			}
-			while (info->width-- > 0)
-				write(1, "0", 1);
-		}
-		else
-		{
-			while (info->width-- > 0)
-				write(1, " ", 1);
-			if (num >= 0 && info->plus == 1)
-				write(1, "+", 1);
-			if (info->precision > 0)
-			{
-				if (num < 0)
-				{
-					write(1, "-", 1);
-					num = -num;
-				}
-				while (info->precision-- > 0)
-					write(1, "0", 1);
-			}
-		}
-		ft_putnbr_my(num);
-		return ;
-	}
-	else
-	{
-		if (num >= 0 && info->plus == 1 && info->zero == 1)
-			write(1, "+", 1);
-		if (info->precision != 0)
-		{
-			if (num < 0)
-			{
-				write(1, "-", 1);
-				num = -num;
-			}
-			while (info->precision-- > 0)
-				write(1, "0", 1);
-		}
-		ft_putnbr_my(num);
-		while (info->width-- > 0)
-			write(1, " ", 1);
-
-		return ;
-	}
-	ft_putnbr_my(num);
-}
-
-void print_d(va_list arg, t_box *info, const char *format)
-{
-	intmax_t num;
-	/*============= length =============*/
-	if (info->length == '1')
-	{
-		num = (char)va_arg(arg, int);
-	}
-	else if (info->length == 'h')
-	{
-		num = (short)va_arg(arg, int);
-	}
-	else if (info->length == 'l')
-	{
-		num = va_arg(arg, long);
-	}
-	else if (info->length == '2')
-	{
-		num = va_arg(arg, long long);
-	}
-	else if (info->length == 'j')
-	{
-		num = va_arg(arg, intmax_t);
-	}
-	else if (info->length == 'z')
-	{
-		num = (size_t)va_arg(arg, size_t);
-	}
-	else
-		num = va_arg(arg, int);
-
-	// int num = va_arg(arg, int);
-
-	info->width -= ft_countdigits_my(num);
-	if (num >= 0 && info->plus == 1)
-		info->width--;
-	if (num >= 0 && info->space == 1 && info->plus == 0)
-	{
-		info->width--;
-		write(1, " ", 1);
-	}
-
-	if (num >= 0 && info->plus == 1 && info->zero == 0 && info->minus == 1)
-	{
-		write(1, "+", 1);
-	}
-	/* ================== Precision ===================== */
-	if (info->precision != 0)
-		precision(num, info);
-	print(num, info);
-}
-
-void print_x(va_list arg, t_box *info, const char *format)
-{
-	int num = va_arg(arg, int);
-	char *str = ft_itoa_base(num, 16, 0);
-
-	info->width -= ft_strlen(str);
-	info->precision = info->precision - ft_strlen(str);
-	if (info->precision && info->width > info->precision)
-	{
-		info->width -= info->precision;
-	}
-	if (info->minus == 0)
-	{
-		while (info->width-- > 0)
-			write(1, " ", 1);
-		while (info->precision-- > 0)
-			write(1, "0", 1);
-		ft_putstr(str);
-	}
-	else
-	{
-		ft_putstr(str);
-		while (info->width-- > 0)
-			write(1, " ", 1);
-	}
-}
-
-void reset_box(t_box *info)
-{
-	info->minus = 0;
-	info->plus = 0;
-	info->space = 0;
-	info->zero = 0;
-	info->hash = 0;
-	info->width = 0;
-	info->precision = 0;
-	// info->length = 0;
-	info->type = '\0';
-}
-
-void print_struct(t_box info)
-{
-	printf("info.minus = %d\n", info.minus);
-	printf("info.plus = %d\n", info.plus);
-	printf("info.space = %d\n", info.space);
-	printf("info.zero = %d\n", info.zero);
-	printf("info.hash = %d\n", info.hash);
-	printf("info.width = %d\n", info.width);
-	printf("info.precision = %d\n", info.precision);
-	printf("info.length = %c\n", info.length);
-	printf("info.type = %c\n", info.type);
+	if (c == '-' || c == '+' || c == ' ' || c == '0' || c == '#')
+		return (1);
+	return (0);
 }
 
 int is_correct_type(char t)
@@ -264,14 +39,354 @@ int is_correct_type(char t)
 	return (0);
 }
 
+void print_struct(t_box info)
+{
+	printf("info.minus = %d\n", info.minus);
+	printf("info.plus = %d\n", info.plus);
+	printf("info.space = %d\n", info.space);
+	printf("info.zero = %d\n", info.zero);
+	printf("info.hash = %d\n", info.hash);
+	printf("info.width = %d\n", info.width);
+	printf("info.precision = %d\n", info.precision);
+	printf("info.length %s\n", info.length);
+	printf("info.type = %c\n", info.type);
+	printf("info.start = %d\n", info.start);
+	printf("info.sum_zeroes = %d\n", info.sum_zeroes);
+	printf("info.prefix = %s\n", info.prefix);
+
+}
+
+void reset_box(t_box *info)
+{
+	info->minus = 0;
+	info->plus = 0;
+	info->space = 0;
+	info->zero = 0;
+	info->hash = 0;
+	info->width = 0;
+	info->precision = 0;
+	info->length = 0;
+	info->type = 0;
+
+	info->start = 0;
+	info->sum_zeroes = 0;
+	info->prefix = 0;
+}
+
+void put_flag(t_box *info, char c)
+{
+	if (c == '-')
+		info->minus = 1;
+	else if (c == '+')
+		info->plus = 1;
+	else if (c == ' ')
+		info->space = 1;
+	else if (c == '0')
+		info->zero = 1;
+	else if (c == '#')
+		info->hash = 1;
+}
+
+int print_dec(va_list arg, t_box info)
+{
+	intmax_t nbr;
+	char *number;
+	char *temp;
+
+	if (ft_strequ(info.length, "hh"))
+		nbr = (char)va_arg(arg, int);
+	else if (ft_strequ(info.length, "h"))
+		nbr = (short)va_arg(arg, int);
+	else if (ft_strequ(info.length, "ll"))
+		nbr = va_arg(arg, long long);
+	else if (ft_strequ(info.length, "l"))
+		nbr = va_arg(arg, long);
+	else if (ft_strequ(info.length, "j"))
+		nbr = va_arg(arg, intmax_t);
+	else if (ft_strequ(info.length, "z"))
+		nbr = (size_t)va_arg(arg, size_t);
+	else
+		nbr = va_arg(arg, int);
+
+	number = my_itoa(nbr);
+	if (nbr < 0)
+	{
+		info.prefix = "-";
+		number = ft_strsub(number, 1, ft_strlen(number) - 1);
+	}
+	if ((info.sum_zeroes = info.precision - ft_strlen(number)) < 0)
+		info.sum_zeroes = 0;
+	info.start = info.width - info.sum_zeroes - ft_strlen(number) - ft_strlen(info.prefix);
+	if (info.start < 0)
+		info.start = 0;
+	if (info.space == 1 && nbr >= 0)
+	{
+		info.prefix = " ";
+		info.start -= 1;
+	}
+	if (info.plus == 1 && nbr >= 0)
+	{
+		info.prefix = "+";
+		info.start -= 1;
+	}
+	if (info.zero == 1 && info.precision == 0 && info.minus == 0)
+	{
+		info.sum_zeroes += info.start;
+		info.start = 0;
+	}
+	
+	while (info.sum_zeroes-- > 0)
+		number = ft_strjoin("0", number);
+	number = ft_strjoin(info.prefix, number);
+	if (info.minus)
+		while (info.start-- > 0)
+			number = ft_strjoin(number, " ");
+	else
+		while (info.start-- > 0)
+			number = ft_strjoin(" ", number);
+
+	// temp = ft_strnew(info.start);
+	// ft_memset(temp, " ", info.start);
+	// if (info.minus)
+	// 	number = ft_strjoin(number, temp);
+	// else
+	// 	number = ft_strjoin(temp, number);
+	ft_putstr(number);
+}
+
+int print_unsigned(va_list arg, t_box info)
+{
+	uintmax_t nbr;
+	char *number;
+
+	if (ft_strequ(info.length, "hh"))
+		nbr = (unsigned char)va_arg(arg, unsigned int);
+	else if (ft_strequ(info.length, "h"))
+		nbr = (unsigned short)va_arg(arg, unsigned int);
+	else if (ft_strequ(info.length, "ll"))
+		nbr = va_arg(arg, unsigned long long);
+	else if (ft_strequ(info.length, "l"))
+		nbr = va_arg(arg, unsigned long);
+	else if (ft_strequ(info.length, "j"))
+		nbr = va_arg(arg, uintmax_t);
+	else if (ft_strequ(info.length, "z"))
+		nbr = (size_t)va_arg(arg, size_t);
+	else
+		nbr = va_arg(arg, unsigned int);
+
+	number = my_itoa(nbr);
+
+	info.sum_zeroes = info.precision - ft_strlen(number);
+	if (info.sum_zeroes < 0)
+		info.sum_zeroes = 0;
+	info.start = info.width - info.sum_zeroes - ft_strlen(number);
+	if (info.start < 0)
+		info.start = 0;
+	if (info.zero == 1 && info.precision == 0 && info.minus == 0)
+	{
+		info.sum_zeroes += info.start;
+		info.start = 0;
+	}
+
+	while (info.sum_zeroes-- > 0)
+		number = ft_strjoin("0", number);
+	number = ft_strjoin(info.prefix, number);
+	if (info.minus)
+		while (info.start-- > 0)
+			number = ft_strjoin(number, " ");
+	else
+		while (info.start-- > 0)
+			number = ft_strjoin(" ", number);
+	ft_putstr(number);
+}
+
+int print_hex(va_list arg, t_box info)
+{
+	uintmax_t nbr;
+	char *number;
+
+	if (ft_strequ(info.length, "hh"))
+		nbr = (unsigned char)va_arg(arg, unsigned int);
+	else if (ft_strequ(info.length, "h"))
+		nbr = (unsigned short)va_arg(arg, unsigned int);
+	else if (ft_strequ(info.length, "ll"))
+		nbr = va_arg(arg, unsigned long long);
+	else if (ft_strequ(info.length, "l"))
+		nbr = va_arg(arg, unsigned long);
+	else if (ft_strequ(info.length, "j"))
+		nbr = va_arg(arg, uintmax_t);
+	else if (ft_strequ(info.length, "z"))
+		nbr = (size_t)va_arg(arg, size_t);
+	else
+		nbr = va_arg(arg, unsigned int);
+
+	if (info.type == 'x')
+		number = ft_itoa_base(nbr, 16, 0);
+	else
+		number = ft_itoa_base(nbr, 16, 1);
+
+	info.sum_zeroes = info.precision - ft_strlen(number);
+	if (info.sum_zeroes < 0)
+		info.sum_zeroes = 0;
+	info.start = info.width - info.sum_zeroes - ft_strlen(number);
+	if (info.start < 0)
+		info.start = 0;
+	if (info.hash == 1)
+	{
+		if (info.type == 'x')
+			info.prefix = "0x";
+		else
+			info.prefix = "0X";
+		info.start -= 2;
+	}
+	if (info.zero == 1 && info.precision == 0 && info.minus == 0)
+	{
+		info.sum_zeroes += info.start;
+		info.start = 0;
+	}
+
+	while (info.sum_zeroes-- > 0)
+		number = ft_strjoin("0", number);
+	number = ft_strjoin(info.prefix, number);
+	if (info.minus)
+		while (info.start-- > 0)
+			number = ft_strjoin(number, " ");
+	else
+		while (info.start-- > 0)
+			number = ft_strjoin(" ", number);
+	ft_putstr(number);
+}
+
+int print_octal(va_list arg, t_box info)
+{
+	uintmax_t nbr;
+	char *number;
+
+	if (ft_strequ(info.length, "hh"))
+		nbr = (unsigned char)va_arg(arg, unsigned int);
+	else if (ft_strequ(info.length, "h"))
+		nbr = (unsigned short)va_arg(arg, unsigned int);
+	else if (ft_strequ(info.length, "ll"))
+		nbr = va_arg(arg, unsigned long long);
+	else if (ft_strequ(info.length, "l"))
+		nbr = va_arg(arg, unsigned long);
+	else if (ft_strequ(info.length, "j"))
+		nbr = va_arg(arg, uintmax_t);
+	else if (ft_strequ(info.length, "z"))
+		nbr = (size_t)va_arg(arg, size_t);
+	else
+		nbr = va_arg(arg, unsigned int);
+
+	number = ft_itoa_base(nbr, 8, 0);
+
+	info.sum_zeroes = info.precision - ft_strlen(number);
+	if (info.sum_zeroes < 0)
+		info.sum_zeroes = 0;
+	info.start = info.width - info.sum_zeroes - ft_strlen(number);
+	if (info.start < 0)
+		info.start = 0;
+	if (info.hash == 1 && info.sum_zeroes == 0)
+	{
+		info.prefix = "0";
+		info.start -= 1;
+	}
+	if (info.zero == 1 && info.precision == 0 && info.minus == 0)
+	{
+		info.sum_zeroes += info.start;
+		info.start = 0;
+	}
+
+	while (info.sum_zeroes-- > 0)
+		number = ft_strjoin("0", number);
+	number = ft_strjoin(info.prefix, number);
+	if (info.minus)
+		while (info.start-- > 0)
+			number = ft_strjoin(number, " ");
+	else
+		while (info.start-- > 0)
+			number = ft_strjoin(" ", number);
+	ft_putstr(number);
+}
+
+int print_char(va_list arg, t_box info)
+{
+	char c;
+
+	c = va_arg(arg, int);
+	info.start = info.width - 1;
+	if (info.start < 0)
+		info.start = 0;
+	
+	if (info.minus == 0)
+	{
+		while (info.start-- > 0)
+			write(1, " ", 1);
+		write(1, &c, 1);
+	}
+	else
+	{
+		write(1, &c, 1);
+		while (info.start-- > 0)
+			write(1, " ", 1);
+	}
+}
+
+int print_string(va_list arg, t_box info)
+{
+	char *temp;
+	char *string;
+
+	temp = va_arg(arg, char*);
+	string = ft_strdup(temp);
+	if (temp == 0)
+		string = ft_strdup("(null)");
+	
+	info.start = info.width - ft_strlen(string);
+	if (info.minus)
+		while (info.start-- > 0)
+			string = ft_strjoin(string, " ");
+	else
+		while (info.start-- > 0)
+			string = ft_strjoin(" ", string);
+	ft_putstr(string);
+
+}
+
+int print(va_list arg, t_box info)
+{
+	if (info.type == 'd' || info.type == 'i')
+	{
+		print_dec(arg, info);
+	}
+	else if (info.type == 'u')
+	{
+		print_unsigned(arg, info);
+	}
+	else if (info.type == 'x' || info.type == 'X')
+	{
+		print_hex(arg, info);
+	}
+	else if (info.type == 'o' || info.type == 'O')
+	{
+		print_octal(arg, info);
+	}
+	else if (info.type == 'c')
+	{
+		print_char(arg, info);
+	}
+	else if (info.type == 's')
+	{
+		print_string(arg, info);
+	}
+	return (1);
+}
+
 int ft_printf(const char *format, ...)
 {
-	int i;
 	va_list arg;
 	t_box info;
-	int temp;		// remember index for getting number
-	char *number;   // getting str(number) for ft_atoi
-
+	int i;
+	int start;
 	va_start(arg, format);
 	i = 0;
 	while (format[i])
@@ -280,135 +395,39 @@ int ft_printf(const char *format, ...)
 		{
 			reset_box(&info);
 			i++;
-			/* =================== Parse flags ==================== */
-			while (format[i] && !is_correct_type(format[i]))
+			while (is_flag(format[i]))
 			{
-				// if ()
-				if (format[i] == '-')
-				{
-					info.minus = 1;
-					i++;
-				}
-				else if (format[i] == '+')
-				{
-					info.plus = 1;
-					i++;
-				}
-				else if (format[i] == ' ')
-				{
-					info.space = 1;
-					while (format[i] == ' ')
-						i++;
-				}
-				else if (format[i] == '#')
-				{
-					info.hash = 1;
-					i++;
-				}
-				// flag 0
-				else if (format[i] == '0')
-				{
-					info.zero = 1;
-					i++;
-				}
-				// width
-				else if (format[i] > '0' && format[i] <= '9')
-				{
-					temp = i;
-					i += count_width(&format[i]);
-					number = ft_strsub(format, temp, i - temp);
-					info.width = ft_atoi(number);
-				}
-				else if (format[i] == '.')
-				{
-					i++;
-					temp = i;
-					i += count_width(&format[i]);
-					number = ft_strsub(format, temp, i - temp);
-					info.precision = ft_atoi(number);
-				}
-				else if (format[i] == 'h' && format[i + 1] == 'h')
-				{
-					info.length = '1';
-					i += 2;
-				}
-				else if (format[i] == 'h')
-				{
-					info.length = 'h';
-					i++;
-				}
-				else if (format[i] == 'l' && format[i + 1] == 'l')
-				{
-					info.length = '2';
-					i += 2;
-				}
-				else if (format[i] == 'l')
-				{
-					info.length = 'l';
-					i++;
-				}
-				else if (format[i] == 'j')
-				{
-					info.length = 'j';
-					i++;
-				}
-				else if (format[i] == 'z')
-				{
-					info.length = 'z';
-					i++;
-				}
-				else
-				{
-					if (is_correct_type(format[i]))
-						break ;
-					i++;
-				}
+				put_flag(&info, format[i]);
+				i++;
 			}
-			info.type = format[i];
+			while (ft_isdigit(format[i]))
+			{
+				start = i;
+				while (ft_isdigit(format[i]))
+					i++;
+				info.width = ft_atoi(ft_strsub(format, start, i - start));
+			}
+			if (format[i] == '.')
+			{
+				i++;
+				start = i;
+				while (ft_isdigit(format[i]))
+					i++;
+				info.precision = ft_atoi(ft_strsub(format, start, i - start));
+			}
+			if (is_length(format[i]))
+			{
+				start = i;
+				while (is_length(format[i]))
+					i++;
+				info.length = ft_strsub(format, start, i - start);
+			}
+			if (is_correct_type(format[i]))
+			{
+				info.type = format[i];
+				print(arg, info);
+			}
 			// print_struct(info);
-			// printf("\n");
-			/*================== S ===================*/
-			// if (format[i] == 's')
-			// {
-			// 	char *str = va_arg(arg, char *);
-			// 	ft_putstr(str);
-			// }
-			/*================== D ===================*/
-			// else 
-			if (info.type == 'd' || info.type == 'i')
-			{
-				print_d(arg, &info, format);
-			}
-			/*================== X ===================*/
-			else if (format[i] == 'x')
-			// {
-
-				print_x(arg, &info, format);
-			// 	if (info.width != 0)
-			// 	{
-					 
-			// 	}
-			// 	if (info.zero != 0)
-			// 	{
-			// 		info.zero -= ft_strlen(str);
-			// 		while (info.zero-- > 0)
-			// 			write(1, "0", 1);
-			// 	}
-			// 	ft_putstr(str);
-			// }
-			// else if (format[i] == 'X')
-			// {
-			// 	int num = va_arg(arg, int);
-			// 	char *str = ft_itoa_base(num, 16, 1);
-			// 	ft_putstr(str);
-			// }
-			/*================== O ===================*/
-			// else if (format[i] == 'o')
-			// {
-			// 	int num = va_arg(arg, int);
-			// 	char *temp = ft_itoa_base(num, 8, 0);
-			// 	ft_putstr(temp);
-			// }
 		}
 		else
 			write(1, &format[i], 1);
@@ -417,950 +436,74 @@ int ft_printf(const char *format, ...)
 	return (1);
 }
 
-void	tests_integer(void)
-{
-		int i = 123456;
-	int j;
-	int min = -2147483648;
-	int max = 2147483647;
-	int value;
-
-	ft_printf("========== simple ==========\n"); j = 1;
-
-	value = printf("%d OR: %i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-	
-	ft_printf("========== width ==========\n"); j = 1;
-
-	value = printf("%d OR: %3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== minus + width ==========\n"); j = 1;
-
-	value = printf("%d OR: %-3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== precision ==========\n"); j = 1;
-
-	value = printf("%d OR: %.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %.20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %.20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision ==========\n"); j = 1;
-
-	value = printf("%d OR: %1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20.10i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20.10i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20.5i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20.5i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %10.20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %10.20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + minus ==========\n"); j = 1;
-
-	value = printf("%d OR: %-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %-10.20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %-10.20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== plus ==========\n"); j = 1;
-
-	value = printf("%d OR: %+i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== plus + width ==========\n"); j = 1;
-
-	value = printf("%d OR: %+3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== plus + precision ==========\n"); j = 1;
-
-	value = printf("%d OR: %+.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+.20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+.20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + plus ==========\n"); j = 1;
-
-	value = printf("%d OR: %+1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + plus + minus ==========\n"); j = 1;
-
-	value = printf("%d OR: %+-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %+-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %+-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== zero + width ==========\n"); j = 1;
-
-	value = printf("%d OR: %03i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %03i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %020i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %020i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %03i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %03i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %020i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %020i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %010i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %010i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %020i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %020i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %020i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %020i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== zero + precision ==========\n"); j = 1;
-
-	value = printf("%d OR: %0.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0.20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0.20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + zero ==========\n"); j = 1;
-
-	value = printf("%d OR: %01.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %01.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %01.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %01.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %03.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %03.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %010.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %010.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %020.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %020.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %020.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %020.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %01.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %01.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %01.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %01.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %03.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %03.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %010.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %010.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %05.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %05.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %010.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %010.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %010.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %010.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %020.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %020.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + zero + minus ==========\n"); j = 1;
-
-	value = printf("%d OR: %0-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + zero + plus ==========\n"); j = 1;
-
-	value = printf("%d OR: %0+1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + zero + plus + minus ==========\n"); j = 1;
-
-	value = printf("%d OR: %0+-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: %0+-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: %0+-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== space ==========\n"); j = 1;
-
-	value = printf("%d OR: % i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== space + width ==========\n"); j = 1;
-
-	value = printf("%d OR: % 3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== space + precision ==========\n"); j = 1;
-
-	value = printf("%d OR: % .3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % .3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % .20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % .20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % .3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % .3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % .20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % .20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % .10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % .10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % .20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % .20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % .20i@", j, max); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % .20i@", j, max); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + space ==========\n"); j = 1;
-
-	value = printf("%d OR: % 1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % 20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % 20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + space + plus ==========\n"); j = 1;
-
-	value = printf("%d OR: % +1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + space + plus + minus ==========\n"); j = 1;
-
-	value = printf("%d OR: % +-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-1.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-1.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-3.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-10.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-20.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-20.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-1.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-1.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-3.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-10.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-5.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-10.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-10.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-20.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + space + plus + zero ==========\n"); j = 1;
-
-	value = printf("%d OR: % +01.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +01.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +01.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +01.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +03.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +03.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +010.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +010.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +020.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +020.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +020.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +020.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +01.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +01.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +01.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +01.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +03.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +03.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +010.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +010.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +05.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +05.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +010.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +010.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +010.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +010.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +020.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +020.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-
-	ft_printf("========== width + precision + space + plus + zero + minus ==========\n"); j = 1;
-
-	value = printf("%d OR: % +-01.3i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-01.3i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-01.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-01.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-03.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-03.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-010.20i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-010.20i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-020.10i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-020.10i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-020.5i@", j, i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-020.5i@", j, i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-01.3i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-01.3i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-01.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-01.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-03.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-03.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-010.20i@", j, -i); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-010.20i@", j, -i); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-05.10i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-05.10i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-010.5i@", j, 0); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-010.5i@", j, 0); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-010.20i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-010.20i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-	value = printf("%d OR: % +-020.10i@", j, min); printf(" VALUE: %d\n", value);
-	value = ft_printf("%d FT: % +-020.10i@", j, min); printf(" VALUE: %d\n", value);
-	j++;
-}
-
 void test_42(void)
 {
-// 	ft_printf("%d\n", 2147483648);                  //-> "-2147483648"
-// 	   printf("%d\n", 2147483648);
-//  	ft_printf("%d\n", -2147483648);                 //-> "-2147483648"
-//  	   printf("%d\n", -2147483648);
-//  	ft_printf("%d\n", -2147483649);                 //-> "2147483647"
-//  	   printf("%d\n", -2147483649);
-//  	ft_printf("% d\n", 42);                         //-> " 42"
-//  	   printf("% d\n", 42);
-//  	ft_printf("% d\n", -42);                        //-> "-42"
-//  	   printf("% d\n", -42);
-//  	ft_printf("%+d\n", 42);                         //-> "+42"
-//  	   printf("%+d\n", 42);
-//  	ft_printf("%+d\n", -42);                        //-> "-42"
-//  	   printf("%+d\n", -42);
-//  	ft_printf("%+d\n", 0);                          //-> "+0"
-//  	   printf("%+d\n", 0);
-//  	// ft_printf("%+d\n", 4242424242424242424242);     //-> "-1"
-//  	   // printf("%+d\n", 4242424242424242424242);
-//  	ft_printf("% +d\n", 42);                        //-> "+42"
-//  	   printf("% +d\n", 42);
-//  	ft_printf("% +d\n", -42);                       //-> "-42"
-//  	   printf("% +d\n", -42);
-//  	ft_printf("%+ d\n", 42);                        //-> "+42"
-//  	   printf("%+ d\n", 42);
-//  	ft_printf("%+ d\n", -42);                       //-> "-42"
-//  	   printf("%+ d\n", -42);
-//  	ft_printf("%  +d\n", 42);                       //-> "+42"
-//  	   printf("%  +d\n", 42); 
-//  	ft_printf("%  +d\n", -42);                      //-> "-42"
-//  	   printf("%  +d\n", -42);
-//  	ft_printf("%+  d\n", 42);                       //-> "+42"
-//  	   printf("%+  d\n", 42);
-//  	ft_printf("%+  d\n", -42);                      //-> "-42"
-//  	   printf("%+  d\n", -42);
-//  	ft_printf("% ++d\n", 42);                       //-> "+42"
-//  	   printf("% ++d\n", 42);
-//  	ft_printf("% ++d\n", -42);                      //-> "-42"
-//  	   printf("% ++d\n", -42);
-//  	ft_printf("%++ d\n", 42);                       //-> "+42"
-//  	   printf("%++ d\n", 42);
-//  	ft_printf("%++ d\n", -42);                      //-> "-42"
-//  	   printf("%++ d\n", -42);
-//  	ft_printf("%0d\n", -42);                        //-> "-42"
-//  	   printf("%0d\n", -42);
-//  	ft_printf("%00d\n", -42);                       //-> "-42"
-//  	   printf("%00d\n", -42);
-//  	ft_printf("%5d\n", 42);                         //-> "   42"
-//  	   printf("%5d\n", 42);
-//  	ft_printf("%05d\n", 42);                        //-> "00042"
-//  	   printf("%05d\n", 42);
-//  	ft_printf("%0+5d\n", 42);                       //-> "+0042"
-//  	   printf("%0+5d\n", 42); 
-//  	ft_printf("%5d\n", -42);                        //-> "  -42"
-//  	   printf("%5d\n", -42); 
-//  	ft_printf("%05d\n", -42);                       //-> "-0042"
-//  	   printf("%05d\n", -42);
-//  	ft_printf("%0+5d\n", -42);                      //-> "-0042"
-//  	   printf("%0+5d\n", -42); 
-//  	ft_printf("%-5d\n", 42);                        //-> "42   "
-//  	   printf("%-5d\n", 42); 
-//  	ft_printf("%-05d\n", 42);                       //-> "42   "
-//  	   printf("%-05d\n", 42);
-//  	ft_printf("%-5d\n", -42);                       //-> "-42  "
-//  	   printf("%-5d\n", -42); 
-//  	ft_printf("%-05d\n", -42);                      //-> "-42  "
-//  	   printf("%-05d\n", -42);
+   	    ft_printf("%d\n", 2147483648);                  //-> "-2147483648"
+   	       printf("%d\n", 2147483648);
+    	ft_printf("%d\n", -2147483648);                 //-> "-2147483648"
+    	   printf("%d\n", -2147483648);
+    	ft_printf("%d\n", -2147483649);                 //-> "2147483647"
+    	   printf("%d\n", -2147483649);
+    	ft_printf("% d\n", 42);                         //-> " 42"
+    	   printf("% d\n", 42);
+    	ft_printf("% d\n", -42);                        //-> "-42"
+    	   printf("% d\n", -42);
+    	ft_printf("%+d\n", 42);                         //-> "+42"
+    	   printf("%+d\n", 42);
+    	ft_printf("%+d\n", -42);                        //-> "-42"
+    	   printf("%+d\n", -42);
+    	ft_printf("%+d\n", 0);                          //-> "+0"
+    	   printf("%+d\n", 0);
+    	// ft_printf("%+d\n", 4242424242424242424242);     //-> "-1"
+    	   // printf("%+d\n", 4242424242424242424242);
+    	ft_printf("% +d\n", 42);                        //-> "+42"
+    	   printf("% +d\n", 42);
+    	ft_printf("% +d\n", -42);                       //-> "-42"
+    	   printf("% +d\n", -42);
+    	ft_printf("%+ d\n", 42);                        //-> "+42"
+    	   printf("%+ d\n", 42);
+    	ft_printf("%+ d\n", -42);                       //-> "-42"
+    	   printf("%+ d\n", -42);
+    	ft_printf("%  +d\n", 42);                       //-> "+42"
+    	   printf("%  +d\n", 42); 
+    	ft_printf("%  +d\n", -42);                      //-> "-42"
+    	   printf("%  +d\n", -42);
+    	ft_printf("%+  d\n", 42);                       //-> "+42"
+    	   printf("%+  d\n", 42);
+    	ft_printf("%+  d\n", -42);                      //-> "-42"
+    	   printf("%+  d\n", -42);
+    	ft_printf("% ++d\n", 42);                       //-> "+42"
+    	   printf("% ++d\n", 42);
+    	ft_printf("% ++d\n", -42);                      //-> "-42"
+    	   printf("% ++d\n", -42);
+    	ft_printf("%++ d\n", 42);                       //-> "+42"
+    	   printf("%++ d\n", 42);
+    	ft_printf("%++ d\n", -42);                      //-> "-42"
+    	   printf("%++ d\n", -42);
+    	ft_printf("%0d\n", -42);                        //-> "-42"
+    	   printf("%0d\n", -42);
+    	ft_printf("%00d\n", -42);                       //-> "-42"
+    	   printf("%00d\n", -42);
+    	ft_printf("%5d\n", 42);                         //-> "   42"
+    	   printf("%5d\n", 42);
+    	ft_printf("%05d\n", 42);                        //-> "00042"
+    	   printf("%05d\n", 42);
+    	ft_printf("%0+5d\n", 42);                       //-> "+0042"
+    	   printf("%0+5d\n", 42); 
+    	ft_printf("%5d\n", -42);                        //-> "  -42"
+    	   printf("%5d\n", -42); 
+    	ft_printf("%05d\n", -42);                       //-> "-0042"
+    	   printf("%05d\n", -42);
+    	ft_printf("%0+5d\n", -42);                      //-> "-0042"
+    	   printf("%0+5d\n", -42); 
+    	ft_printf("%-5d\n", 42);                        //-> "42   "
+    	   printf("%-5d\n", 42); 
+    	ft_printf("%-05d\n", 42);                       //-> "42   "
+    	   printf("%-05d\n", 42);
+    	ft_printf("%-5d\n", -42);                       //-> "-42  "
+    	   printf("%-5d\n", -42); 
+    	ft_printf("%-05d\n", -42);                      //-> "-42  "
+    	   printf("%-05d\n", -42);
 	    ft_printf("%hd\n", 32767);                        //-> "32767"
 	       printf("%hd\n", 32767);
         // ft_printf("%hd\n", −32768);                       //-> "0"
@@ -1445,20 +588,24 @@ void test_42(void)
 
 int main()
 {
-	// char n[] = "Chaynik";
-	// // long long nbr = 9223372036954775809;
-	// int nbr = 21474836489;
-	// int nbr2 = 228;
-	// // int my_ret, orig_ret;
+	char *str = "Hello";
+	int nbr = 842;
 
-	// ft_printf("%zd\n", nbr);
+	int nbr2 = -42;
 
-	// /* ----------ORIGINAL----------*/
+	/*========= MY =========*/
+	ft_printf("%10s\n", str);
 
-	// printf("%zd\n", nbr);
+	// ========== ORIGINAL ==========
+	printf("%10s\n", str);
 
-	// tests_integer();
-	test_42();
+
+	/*========= MY =========*/
+	// ft_printf("%+10.5u\n", nbr2);
+
+	// ========== ORIGINAL ==========
+	// printf("%+10.5u\n", nbr2);
+
+	// test_42();
 	return (0);
 }
-

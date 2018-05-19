@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-int		ft_count(int n, int base)
+int		ft_count(intmax_t n, int base)
 {
 	int	i;
 
@@ -27,19 +27,18 @@ int		ft_count(int n, int base)
 	return (i);
 }
 
-char	*ft_itoa_base(unsigned int n, int base, int flag)
+char	*ft_itoa_base(uintmax_t n, int base, int flag)
 {
 	char	*str;
 	int		len;
 	char	*digits;
 	int		i;
 
+	if (n <= 0)
+		return ("0");
 	len = ft_count(n, base);
-	if (!(str = ft_strnew(len)))
-		return (NULL);
+	str = (char *)malloc(sizeof(char) * (len + 1));
 	digits = "0123456789abcdef";
-	if (n == 0)
-		str[0] = '0';
 	str[len] = '\0';
 	while (n != 0)
 	{
@@ -48,12 +47,9 @@ char	*ft_itoa_base(unsigned int n, int base, int flag)
 	}
 	if (flag == 1)
 	{
-		i = 0;
-		while (str[i])
-		{
+		i = -1;
+		while (str[++i])
 			str[i] = ft_toupper(str[i]);
-			i++;
-		}
 	}
 	return (str);
 }
