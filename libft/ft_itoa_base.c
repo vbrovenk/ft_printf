@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-int		ft_count(intmax_t n, int base)
+int		ft_count(uintmax_t n, int base)
 {
 	int	i;
 
