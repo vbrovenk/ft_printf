@@ -25,7 +25,7 @@ char			*my_itoa(intmax_t number)
 	int		len;
 
 	sign = 0;
-	if (number == -9223372036854775808)
+	if (number == (-9223372036854775808))
 		return (ft_strdup("-9223372036854775808"));
 	if (number < 0)
 	{
