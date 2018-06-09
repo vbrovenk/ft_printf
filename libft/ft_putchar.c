@@ -12,7 +12,46 @@
 
 #include "libft.h"
 
-void	ft_putchar(char c)
+int sizeof_symbol(int c)
 {
-	write(1, &c, 1);
+	if (c < 128)
+		return (1);
+	else if (c < 2048)
+		return (2);
+	else if (c < 65536)
+		return (3);
+	else
+		return (4);
+}
+
+int	ft_putchar(wchar_t c)
+{
+	unsigned char symbol[4];
+	unsigned int size = sizeof_symbol(c);
+
+	if (c < 128)
+		symbol[0] = c;
+	else if (c < 2048)
+	{
+		symbol[0] = (c >> 6 & 31) | 192;
+		symbol[1] = (c & 63) | 128;
+	}
+	else if (c < 65536)
+	{
+		symbol[0] = ((c >> 12) & 15) | 224;
+		symbol[1] = ((c >> 6) & 63) | 128;
+		symbol[2] = (c & 63) | 128;
+	}
+	else
+	{
+		symbol[0] = (c >> 18 & 7) | 224;
+		symbol[1] = (c >> 12 & 63) | 128;
+		symbol[2] = (c >> 6 & 63) | 128;
+		symbol[3] = (c & 63) | 128;
+	}
+
+
+	write(1, &symbol, size);
+
+	return (size);
 }

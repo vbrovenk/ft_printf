@@ -343,17 +343,38 @@ int print_octal(va_list arg, t_box info)
 	return (ft_strlen(number));
 }
 
+int sizeof_sym(int c)
+{
+	if (c < 128)
+		return (1);
+	else if (c < 2048)
+		return (2);
+	else if (c < 65536)
+		return (3);
+	else
+		return (4);
+}
+
 int print_char(va_list arg, t_box info)
 {
-	char c;
+	int c;
 	char *string;
 
 	c = va_arg(arg, int);
-	info.start = info.width - 1;
+	printf("%d\n", c);
+	info.start = info.width - sizeof_sym(c);
 	if (info.start < 0)
 		info.start = 0;
-	string = ft_strnew(2);
-	string[0] = c;
+	string = ft_strnew(sizeof_sym(c));
+	// string[0] = c;
+
+	if (c < 128)
+		string[0] = c;
+	else if (c < 2048)
+	{
+		string[0] = (c >> 6 & 31) | 192;
+		string[1] = (c & 63) | 128;
+	}
 
 	if (info.zero == 1 && info.minus == 0)
 	{
@@ -471,11 +492,11 @@ int print(va_list arg, t_box info)
 	{
 		ret = print_octal(arg, info);
 	}
-	else if (info.type == 'c')
+	else if (info.type == 'c' || info.type == 'C')
 	{
 		ret = print_char(arg, info);
 	}
-	else if (info.type == 's')
+	else if (info.type == 's' || info.type == 'S')
 	{
 		ret = print_string(arg, info);
 	}
@@ -900,20 +921,7 @@ int ft_printf(const char *format, ...)
 
 // void failed_tests()
 // {
-// 	ft_printf("%5.2s is a string\n", "this");                                      //-> "   th is a string"
-// 	   printf("%5.2s is a string\n", "this");
-// 	ft_printf("%10s is a string\n", "");                                           //-> "           is a string"
-// 	   printf("%10s is a string\n", "");
-// 	ft_printf("%.2s is a string\n", "");                                           //-> " is a string"
-// 	   printf("%.2s is a string\n", "");
-// 	ft_printf("%5.2s is a string\n", "");                                          //-> "      is a string"
-// 	   printf("%5.2s is a string\n", "");
-// 	ft_printf("%-10s is a string\n", "this");                                      //-> "this       is a string"
-// 	   printf("%-10s is a string\n", "this");
-// 	ft_printf("%-.2s is a string\n", "this");                                      //-> "th is a string"
-// 	   printf("%-.2s is a string\n", "this");
-// 	ft_printf("%-5.2s is a string\n", "this");                                     //-> "th    is a string"
-// 	   printf("%-5.2s is a string\n", "this");
+
 // }
 
 
@@ -927,18 +935,23 @@ int main()
 	int ret_org;
 	int ret_my;
 	/*========= MY =========*/
-	ret_my = ft_printf("%5.2s is a string\n", "this");
+	ret_my = ft_printf("%-20S\n", "привет");
 
 	// ========== ORIGINAL ==========
-	ret_org = printf("%5.2s is a string\n", "this");
+	ret_org = printf("%-20s\n", "привет");
 
-
+	
 	printf("ORG %d | MY %d\n", ret_org, ret_my);
 	/*========= MY =========*/
 	// ft_printf("%+10.5u\n", nbr2);
 
 	// ========== ORIGINAL ==========
 	// printf("%+10.5u\n", nbr2);
+
+	// int sym = L'Ç';
+	// ret_my = ft_putchar(sym);
+	// printf("\n");
+	// printf("ret_my %d\n", ret_my);
 
 	// test_42();
 	// test_x_s_o();
