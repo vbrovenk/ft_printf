@@ -1,9 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   my_itoa.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vbrovenk <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/06/27 17:05:28 by vbrovenk          #+#    #+#             */
+/*   Updated: 2018/06/27 17:05:32 by vbrovenk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "printf.h"
 #include "libft/libft.h"
-#include <inttypes.h>  // for linux
 
-int	my_countdigits(intmax_t n);
+// int	my_countdigits(intmax_t n);
 
 static void		fill(intmax_t number, char *str, int len)
 {

@@ -10,14 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_PRINTF
-# define FT_PRINTF
+#ifndef FT_PRINTF_H
+# define FT_PRINTF_H
 
-#include "libft/libft.h"
-#include <inttypes.h>  // for linux
-#include <stdarg.h>
+# include "libft/libft.h"
+# include <inttypes.h>
+# include <stdarg.h>
+# include <limits.h>
 
-typedef	struct s_box
+typedef	struct	s_box
 {
 	int			minus;
 	int			plus;
@@ -28,21 +29,21 @@ typedef	struct s_box
 	int			precision;
 	char		*length;
 	char		type;
-	int start;
-	int sum_zeroes;
-	char *prefix;
+	int			start;
+	int			sum_zeroes;
+	char		*prefix;
 }				t_box;
 
-int			print_dec(va_list arg, t_box info);
-int			print_unsigned(va_list arg, t_box info);
-int			print_hex(va_list arg, t_box info);
-int			print_octal(va_list arg, t_box info);
-int			print_percent(t_box info);
-int			print_string(va_list arg, t_box info);
-int			print_char(va_list arg, t_box info);
-int 		sizeof_sym(int c);
-int			print_uni_string(va_list arg, t_box info);
-int			my_countdigits(intmax_t n);
-char		*my_itoa(intmax_t number);
+int				print_dec(va_list arg, t_box info);
+int				print_unsigned(va_list arg, t_box info);
+int				print_hex(va_list arg, t_box info);
+int				print_octal(va_list arg, t_box info);
+int				print_percent(t_box info);
+int				print_string(va_list arg, t_box info);
+int				print_char(va_list arg, t_box info);
+int				sizeof_sym(int c);
+int				print_uni_string(va_list arg, t_box info);
+int				my_countdigits(intmax_t n);
+char			*my_itoa(intmax_t number);
 
 #endif

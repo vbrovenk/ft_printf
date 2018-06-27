@@ -37,7 +37,6 @@ int		print_string(va_list arg, t_box info)
 	string = ft_strdup(temp);
 	if (temp == 0)
 		string = ft_strdup("(null)");
-	// maybe work with precision 0
 	if (info.precision == -1)
 		string = ft_strdup("");
 	if (info.precision > 0)

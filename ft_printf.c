@@ -10,26 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include <limits.h>
 #include <stdio.h>
 #include "ft_printf.h"
 
-int	is_length(char c)
+int		is_length(char c)
 {
 	if (c == 'h' || c == 'l' || c == 'j' || c == 'z')
 		return (1);
 	return (0);
 }
 
-int is_flag(char c)
+int		is_flag(char c)
 {
 	if (c == '-' || c == '+' || c == ' ' || c == '0' || c == '#')
 		return (1);
 	return (0);
 }
 
-int is_correct_type(char t)
+int		is_correct_type(char t)
 {
 	if (t == 's' || t == 'S' || t == 'p' || t == 'd' || t == 'D'\
 		|| t == 'i' || t == 'o' || t == 'O' || t == 'u' || t == 'U'\
@@ -40,24 +38,7 @@ int is_correct_type(char t)
 	return (0);
 }
 
-void print_struct(t_box info)
-{
-	printf("info.minus = %d\n", info.minus);
-	printf("info.plus = %d\n", info.plus);
-	printf("info.space = %d\n", info.space);
-	printf("info.zero = %d\n", info.zero);
-	printf("info.hash = %d\n", info.hash);
-	printf("info.width = %d\n", info.width);
-	printf("info.precision = %d\n", info.precision);
-	printf("info.length %s\n", info.length);
-	printf("info.type = %c\n", info.type);
-	printf("info.start = %d\n", info.start);
-	printf("info.sum_zeroes = %d\n", info.sum_zeroes);
-	printf("info.prefix = %s\n", info.prefix);
-
-}
-
-void reset_box(t_box *info)
+void	reset_box(t_box *info)
 {
 	info->minus = 0;
 	info->plus = 0;
@@ -68,13 +49,12 @@ void reset_box(t_box *info)
 	info->precision = 0;
 	info->length = 0;
 	info->type = 0;
-
 	info->start = 0;
 	info->sum_zeroes = 0;
 	info->prefix = 0;
 }
 
-void put_flag(t_box *info, char c)
+void	put_flag(t_box *info, char c)
 {
 	if (c == '-')
 		info->minus = 1;
@@ -88,7 +68,7 @@ void put_flag(t_box *info, char c)
 		info->hash = 1;
 }
 
-int sizeof_sym(int c)
+int		sizeof_sym(int c)
 {
 	if (c < 128)
 		return (1);
@@ -100,7 +80,7 @@ int sizeof_sym(int c)
 		return (4);
 }
 
-int print(va_list arg, t_box info)
+int		print(va_list arg, t_box info)
 {
 	int ret;
 
@@ -122,7 +102,7 @@ int print(va_list arg, t_box info)
 	return (ret);
 }
 
-t_box fill_flags(const char *format, int *i, t_box info)
+t_box	fill_flags(const char *format, int *i, t_box info)
 {
 	int start;
 
@@ -166,7 +146,7 @@ t_box	fill_precision(const char *format, int *i, t_box info)
 	return (info);
 }
 
-int print_spaces(t_box info)
+int		print_spaces(t_box info)
 {
 	int ret;
 
@@ -185,7 +165,7 @@ int print_spaces(t_box info)
 	else
 	{
 		while (--info.width > 0)
-		ret += write(1, " ", 1);
+			ret += write(1, " ", 1);
 	ret += write(1, &info.type, 1);
 	}
 	return (ret);
@@ -207,7 +187,7 @@ void	out_types(const char *format, int i, int *ret, va_list arg, t_box info)
 	}
 }
 
-int ft_printf(const char *format, ...)
+int		ft_printf(const char *format, ...)
 {
 	va_list arg;
 	t_box info;
@@ -233,21 +213,11 @@ int ft_printf(const char *format, ...)
 		{
 			ret++;
 			write(1, &format[i], 1);
-
 		}
 		i++;
 	}
 	return (ret);
 }
-
-// void failed_tests()
-// {
-//  	ft_printf("@moulitest: %.d %.0d\n", 0, 0);      //-> "@moulitest:  "
-//  		printf("@moulitest: %.d %.0d\n", 0, 0); 
-//  	// ft_printf("@moulitest: %5.d %5.0d\n", 0, 0);    //-> "@moulitest:            "
-//  		// printf("@moulitest: %5.d %5.0d\n", 0, 0);
-// }
-
 
 int main()
 {
@@ -259,21 +229,12 @@ int main()
 	int ret_org;
 	int ret_my;
 	// ========= MY =========
-	ret_my = ft_printf("%.4S\n", L"我是一只猫。");
+	ret_my = ft_printf("%15.4S\n", L"我是一只猫。");
 
 	// ========== ORIGINAL ==========
-	ret_org = printf("%.4s\n", "我是一只猫。");
-
+	ret_org = printf("%15.4s\n", "我是一只猫。");
 	
 	printf("ORG %d | MY %d\n", ret_org, ret_my);
 
-	// test_42();
-	// test_x_s_o();
-	// failed_tests();
 	return (0);
 }
-
-
-
-
-

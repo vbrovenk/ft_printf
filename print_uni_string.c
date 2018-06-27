@@ -12,85 +12,104 @@
 
 #include "ft_printf.h"
 
-int uni_putstr(int *string, int count_print)
+int		uni_putstr(int *string, t_box info)
 {
+	int temp;
 	int i;
-	int len;
 
-	len = 0;
 	i = 0;
-	while (string[i] != '\0' && len < count_print)
+	temp = 0;
+	while (string[i] != '\0')
 	{
-		ft_putchar(string[i]);
-		if (string[i] < 128)
-			len += 1;
-		else if (string[i] < 2048)
-			len += 2;
-		else if (string[i] < 65536)
-			len += 3;
+		if (info.precision != 0)
+		{
+			if (temp + sizeof_sym(string[i]) <= info.precision)
+			{
+				ft_putchar(string[i]);
+				temp += sizeof_sym(string[i]);
+			}
+		}
 		else
-			len += 4;
+		{
+			ft_putchar(string[i]);
+			temp += sizeof_sym(string[i]);
+		}
 		i++;
 	}
-	return (len);
+	return (temp);
 }
 
-int print_uni_string(va_list arg, t_box info)
+int		null_str(t_box info)
 {
-	int *temp;
-	int length;
-	int i;
-	int res;
-	char *str;
+	int ret;
 
-	temp = va_arg(arg, int*);
-	length = 0;
-	i = 0;
-	res = 0;
-	if (temp == NULL)
-		str = "(null)";
+	ret = 0;
+	info.start = info.width - 6;
+	if (info.minus == 1)
+	{
+		ret += write(1, "(null)", 6);
+		while (info.start-- > 0)
+			ret += write(1, " ", 1);
+	}
 	else
 	{
-		while (temp[i] != '\0')
+		while (info.start-- > 0)
+			info.zero ? ret += write(1, "0", 1) : (ret += write(1, " ", 1));
+		ret += write(1, "(null)", 6);
+	}
+	return (ret);
+}
+
+int		out_uni_str(t_box info, int *string, int length)
+{
+	int temp;
+	int ret;
+
+	ret = 0;
+	temp = 0;
+	if (info.precision > 0)
+		info.start = info.width - info.precision;
+	else if (info.precision == -1)
+		info.start = info.width;
+	else
+		info.start = info.width - length;
+	if (info.minus == 1)
+	{
+		temp += uni_putstr(string, info);
+		while (info.start-- > 0)
+			ret += write(1, " ", 1);
+	}
+	else
+	{
+		while (info.start-- > 0)
+			info.zero ? ret += write(1, "0", 1) : (ret += write(1, " ", 1));
+		temp += uni_putstr(string, info);
+	}
+	(info.precision > temp) ? (temp = info.precision) : temp;
+	return (ret + temp);
+}
+
+int		print_uni_string(va_list arg, t_box info)
+{
+	int		*string;
+	int		length;
+	int		i;
+	int		ret;
+
+	ret = 0;
+	string = va_arg(arg, int*);
+	length = 0;
+	i = 0;
+	if (string == NULL)
+		return (null_str(info));
+	else
+	{
+		while (string[i] != '\0')
 		{
-			length += sizeof_sym(temp[i]);
+			length += sizeof_sym(string[i]);
 			i++;
 		}
 	}
-	info.start = info.width - length;
-	if (info.zero == 1 && info.minus == 0)
-	{
-		info.sum_zeroes += info.start;
-		info.start = 0;
-	}
-	while (info.sum_zeroes-- > 0)
-		res += write(1, "0", 1);
-	// fignya dlya precision 
-	if (info.precision == 0)
-		info.precision = length;
-	if (info.minus)
-	{
-		if (temp != NULL)
-			res += uni_putstr(temp, info.precision);
-		else
-		{
-			ft_putstr(str);
-			res += 6;	
-		}
-		while (info.start-- > 0)
-			res += write(1, " ", 1);
-	}
-	else
-	{
-		while (info.start-- > 0)
-			res += write(1, " ", 1);
-		if (temp != NULL)
-			res += uni_putstr(temp, info.precision);
-		else
-		{
-			ft_putstr(str);
-			res += 6;	
-		}
-	}
-	return (res);
+	ret = out_uni_str(info, string, length);
+	return (ret);
 }

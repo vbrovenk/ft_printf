@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-int sizeof_symbol(int c)
+int		sizeof_symbol(int c)
 {
 	if (c < 128)
 		return (1);
@@ -24,10 +24,9 @@ int sizeof_symbol(int c)
 		return (4);
 }
 
-int	ft_putchar(wchar_t c)
+int		ft_putchar(wchar_t c)
 {
 	unsigned char symbol[4];
-	unsigned int size = sizeof_symbol(c);
 
 	if (c < 128)
 		symbol[0] = c;
@@ -49,9 +48,6 @@ int	ft_putchar(wchar_t c)
 		symbol[2] = (c >> 6 & 63) | 128;
 		symbol[3] = (c & 63) | 128;
 	}
-
-
-	write(1, &symbol, size);
-
-	return (size);
+	write(1, &symbol, sizeof_symbol(c));
+	return (sizeof_symbol(c));
 }
