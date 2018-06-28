@@ -30,6 +30,7 @@ intmax_t	get_nbr(va_list arg, t_box info)
 		nbr = (size_t)va_arg(arg, size_t);
 	else
 		nbr = va_arg(arg, int);
+	free(info.length);
 	return (nbr);
 }
 
@@ -68,33 +69,67 @@ char		*change_num(char *number, t_box *info, intmax_t nbr)
 	{
 		temp = ft_strdup("");
 		info->precision = 0;
+		free(number);
 	}
 	if (nbr < 0)
 	{
 		info->prefix = "-";
 		temp = ft_strsub(number, 1, ft_strlen(number) - 1);
+		free(number);
 	}
 	return (temp);
+}
+
+char		*output(t_box info, char *number)
+{
+	char	*temp;
+
+	if (info.minus)
+	{
+		while (info.start-- > 0)
+		{
+			temp = number;
+			number = ft_strjoin(number, " ");
+			free(temp);
+		}
+	}
+	else
+	{
+		while (info.start-- > 0)
+		{
+			temp = number;
+			number = ft_strjoin(" ", number);
+			free(temp);
+		}
+	}
+	return (number);
 }
 
 int			print_dec(va_list arg, t_box info)
 {
 	intmax_t	nbr;
 	char		*number;
+	char		*temp;
+	int			ret;
 
 	nbr = get_nbr(arg, info);
 	number = my_itoa(nbr);
 	number = change_num(number, &info, nbr);
 	info = calc_spaces(info, number, nbr);
 	while (info.sum_zeroes-- > 0)
+	{
+		temp = number;
 		number = ft_strjoin("0", number);
-	number = ft_strjoin(info.prefix, number);
-	if (info.minus)
-		while (info.start-- > 0)
-			number = ft_strjoin(number, " ");
-	else
-		while (info.start-- > 0)
-			number = ft_strjoin(" ", number);
-	ft_putstr(number);
-	return (ft_strlen(number));
+		free(temp);
+	}
+	if (info.prefix != 0)
+	{
+		temp = number;
+		number = ft_strjoin(info.prefix, number);
+		free(temp);
+	}
+	number = output(info, number);
+	ret = ft_putstr(number);
+	free(number);
+	return (ret);
 }

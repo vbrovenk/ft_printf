@@ -59,6 +59,8 @@ int		print_char(va_list arg, t_box info)
 {
 	int		c;
 	char	*string;
+	char	*temp;
+	int		ret;
 
 	c = va_arg(arg, int);
 	if ((info.start = info.width - sizeof_sym(c)) < 0)
@@ -71,13 +73,31 @@ int		print_char(va_list arg, t_box info)
 		info.start = 0;
 	}
 	while (info.sum_zeroes-- > 0)
+	{
+		temp = string;
 		string = ft_strjoin("0", string);
+		free(temp);
+	}
 	if (info.minus)
+	{
 		while (info.start-- > 0)
+		{
+			temp = string;
 			string = ft_strjoin(string, " ");
+			free(temp);
+		}
+	}
 	else
+	{
 		while (info.start-- > 0)
+		{
+			temp = string;
 			string = ft_strjoin(" ", string);
+			free(temp);
+		}
+	}
 	output_char(c, info, string);
-	return ((c == 0) ? (ft_strlen(string) + 1) : ft_strlen(string));
+	(c == 0) ? (ret = ft_strlen(string) + 1) : (ret = ft_strlen(string));
+	free(string);
+	return (ret);
 }

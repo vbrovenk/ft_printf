@@ -35,7 +35,7 @@ char	*ft_itoa_base(uintmax_t n, int base, int flag)
 	int		i;
 
 	if (n <= 0)
-		return ("0");
+		return (ft_strdup("0"));
 	len = ft_count(n, base);
 	str = (char *)malloc(sizeof(char) * (len + 1));
 	digits = "0123456789abcdef";

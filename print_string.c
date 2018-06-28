@@ -12,24 +12,33 @@
 
 #include "ft_printf.h"
 
-char	*output(t_box info, char *string)
+int		output_str(t_box info, char *string)
 {
+	char	*temp;
+	int		ret;
+
+	info.start = info.width - ft_strlen(string);
+	if (info.zero == 1 && info.minus == 0)
+	{
+		info.sum_zeroes += info.start;
+		info.start = 0;
+	}
 	while (info.sum_zeroes-- > 0)
+	{
+		temp = string;
 		string = ft_strjoin("0", string);
-	if (info.minus)
-		while (info.start-- > 0)
-			string = ft_strjoin(string, " ");
-	else
-		while (info.start-- > 0)
-			string = ft_strjoin(" ", string);
-	ft_putstr(string);
-	return (string);
+		free(temp);
+	}
+	string = output(info, string);
+	ret = ft_putstr(string);
+	free(string);
+	return (ret);
 }
 
 int		print_string(va_list arg, t_box info)
 {
-	char *temp;
-	char *string;
+	char	*temp;
+	char	*string;
 
 	if (ft_strequ(info.length, "l"))
 		return (print_uni_string(arg, info));
@@ -38,19 +47,15 @@ int		print_string(va_list arg, t_box info)
 	if (temp == 0)
 		string = ft_strdup("(null)");
 	if (info.precision == -1)
+	{
+		free(string);
 		string = ft_strdup("");
+	}
 	if (info.precision > 0)
 	{
 		temp = ft_strsub(string, 0, info.precision);
 		free(string);
 		string = temp;
 	}
-	info.start = info.width - ft_strlen(string);
-	if (info.zero == 1 && info.minus == 0)
-	{
-		info.sum_zeroes += info.start;
-		info.start = 0;
-	}
-	string = output(info, string);
-	return (ft_strlen(string));
+	return (output_str(info, string));
 }

@@ -45,5 +45,6 @@ int				sizeof_sym(int c);
 int				print_uni_string(va_list arg, t_box info);
 int				my_countdigits(intmax_t n);
 char			*my_itoa(intmax_t number);
+char			*output(t_box info, char *number);
 
 #endif

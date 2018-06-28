@@ -32,6 +32,7 @@ uintmax_t	get_hex(va_list arg, t_box info)
 		nbr = va_arg(arg, uintmax_t);
 	else
 		nbr = va_arg(arg, unsigned int);
+	free(info.length);
 	return (nbr);
 }
 
@@ -63,31 +64,47 @@ void		calc_spaces_hex(t_box *info, char *number, uintmax_t nbr)
 	}
 }
 
-int			print_hex(va_list arg, t_box info)
+char		*define_hex(t_box info, uintmax_t nbr)
 {
-	uintmax_t	nbr;
-	char		*number;
+	char *number;
 
-	nbr = get_hex(arg, info);
 	if (info.type == 'x' || info.type == 'p')
 		number = ft_itoa_base(nbr, 16, 0);
 	else
 		number = ft_itoa_base(nbr, 16, 1);
 	if (info.precision == -1 && nbr == 0)
 	{
+		free(number);
 		number = ft_strdup("");
 		info.precision = 0;
 	}
+	return (number);
+}
+
+int			print_hex(va_list arg, t_box info)
+{
+	uintmax_t	nbr;
+	char		*number;
+	char		*temp;
+	int			ret;
+
+	nbr = get_hex(arg, info);
+	number = define_hex(info, nbr);
 	calc_spaces_hex(&info, number, nbr);
 	while (info.sum_zeroes-- > 0)
+	{
+		temp = number;
 		number = ft_strjoin("0", number);
-	number = ft_strjoin(info.prefix, number);
-	if (info.minus)
-		while (info.start-- > 0)
-			number = ft_strjoin(number, " ");
-	else
-		while (info.start-- > 0)
-			number = ft_strjoin(" ", number);
-	ft_putstr(number);
-	return (ft_strlen(number));
+		free(temp);
+	}
+	if (info.prefix != 0)
+	{
+		temp = number;
+		number = ft_strjoin(info.prefix, number);
+		free(temp);
+	}
+	number = output(info, number);
+	ret = ft_putstr(number);
+	free(number);
+	return (ret);
 }

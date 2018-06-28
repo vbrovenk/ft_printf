@@ -30,6 +30,7 @@ uintmax_t	get_unsigned(va_list arg, t_box info)
 		nbr = (size_t)va_arg(arg, size_t);
 	else
 		nbr = va_arg(arg, unsigned int);
+	free(info.length);
 	return (nbr);
 }
 
@@ -52,24 +53,26 @@ int			print_unsigned(va_list arg, t_box info)
 {
 	uintmax_t	nbr;
 	char		*number;
+	char		*temp;
+	int			ret;
 
 	nbr = get_unsigned(arg, info);
 	number = ft_itoa_base(nbr, 10, 0);
 	if (info.precision == -1 && nbr == 0)
 	{
+		free(number);
 		number = ft_strdup("");
 		info.precision = 0;
 	}
 	calc_spaces_uns(&info, number);
 	while (info.sum_zeroes-- > 0)
+	{
+		temp = number;
 		number = ft_strjoin("0", number);
-	number = ft_strjoin(info.prefix, number);
-	if (info.minus)
-		while (info.start-- > 0)
-			number = ft_strjoin(number, " ");
-	else
-		while (info.start-- > 0)
-			number = ft_strjoin(" ", number);
-	ft_putstr(number);
-	return (ft_strlen(number));
+		free(temp);
+	}
+	number = output(info, number);
+	ret = ft_putstr(number);
+	free(number);
+	return (ret);
 }

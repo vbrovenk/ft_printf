@@ -30,6 +30,7 @@ uintmax_t	get_octal(va_list arg, t_box info)
 		nbr = (size_t)va_arg(arg, size_t);
 	else
 		nbr = va_arg(arg, unsigned int);
+	free(info.length);
 	return (nbr);
 }
 
@@ -53,28 +54,44 @@ void		calc_spaces_oct(t_box *info, char *number)
 	}
 }
 
+char		*out_octal(t_box info, char *number)
+{
+	char *temp;
+
+	while (info.sum_zeroes-- > 0)
+	{
+		temp = number;
+		number = ft_strjoin("0", number);
+		free(temp);
+	}
+	if (info.prefix != 0)
+	{
+		temp = number;
+		number = ft_strjoin(info.prefix, number);
+		free(temp);
+	}
+	return (number);
+}
+
 int			print_octal(va_list arg, t_box info)
 {
 	uintmax_t	nbr;
 	char		*number;
+	char		*temp;
+	int			ret;
 
 	nbr = get_octal(arg, info);
 	number = ft_itoa_base(nbr, 8, 0);
 	if (info.precision == -1 && nbr == 0)
 	{
+		free(number);
 		number = ft_strdup("");
 		info.precision = 0;
 	}
 	calc_spaces_oct(&info, number);
-	while (info.sum_zeroes-- > 0)
-		number = ft_strjoin("0", number);
-	number = ft_strjoin(info.prefix, number);
-	if (info.minus)
-		while (info.start-- > 0)
-			number = ft_strjoin(number, " ");
-	else
-		while (info.start-- > 0)
-			number = ft_strjoin(" ", number);
-	ft_putstr(number);
-	return (ft_strlen(number));
+	number = out_octal(info, number);
+	number = output(info, number);
+	ret = ft_putstr(number);
+	free(number);
+	return (ret);
 }

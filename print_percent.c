@@ -14,7 +14,9 @@
 
 int	print_percent(t_box info)
 {
-	char *string;
+	char	*string;
+	int		ret;
+	char	*temp;
 
 	string = ft_strnew(2);
 	string[0] = '%';
@@ -26,13 +28,13 @@ int	print_percent(t_box info)
 		info.start = 0;
 	}
 	while (info.sum_zeroes-- > 0)
+	{
+		temp = string;
 		string = ft_strjoin("0", string);
-	if (info.minus)
-		while (info.start-- > 0)
-			string = ft_strjoin(string, " ");
-	else
-		while (info.start-- > 0)
-			string = ft_strjoin(" ", string);
-	ft_putstr(string);
-	return (ft_strlen(string));
+		free(temp);
+	}
+	string = output(info, string);
+	ret = ft_putstr(string);
+	free(string);
+	return (ret);
 }

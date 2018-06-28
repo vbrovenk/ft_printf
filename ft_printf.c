@@ -105,6 +105,7 @@ int		print(va_list arg, t_box info)
 t_box	fill_flags(const char *format, int *i, t_box info)
 {
 	int start;
+	char *temp;
 
 	while (is_flag(format[*i]))
 	{
@@ -116,7 +117,14 @@ t_box	fill_flags(const char *format, int *i, t_box info)
 		start = *i;
 		while (ft_isdigit(format[*i]))
 			(*i)++;
-		info.width = ft_atoi(ft_strsub(format, start, *i - start));
+		temp = ft_strsub(format, start, *i - start);
+		info.width = ft_atoi(temp);
+		free(temp);
+	}
+	while (is_flag(format[*i]))
+	{
+		put_flag(&info, format[*i]);
+		(*i)++;
 	}
 	return (info);
 }
@@ -124,6 +132,7 @@ t_box	fill_flags(const char *format, int *i, t_box info)
 t_box	fill_precision(const char *format, int *i, t_box info)
 {
 	int start;
+	char *temp;
 
 	if (format[*i] == '.')
 	{
@@ -131,8 +140,9 @@ t_box	fill_precision(const char *format, int *i, t_box info)
 		start = *i;
 		while (ft_isdigit(format[*i]))
 			(*i)++;
-		info.precision = ft_atoi(ft_strsub(format, start, *i - start));
-		/* if nbr = 0 and precision = 0 => output "" */
+		temp = ft_strsub(format, start, *i - start);
+		info.precision = ft_atoi(temp);
+		free(temp);
 		if (info.precision == 0)
 			info.precision = -1;
 	}
@@ -171,7 +181,7 @@ int		print_spaces(t_box info)
 	return (ret);
 }
 
-void	out_types(const char *format, int i, int *ret, va_list arg, t_box info)
+void		out_types(const char *format, int i, int *ret, va_list arg, t_box info)
 {
 	if (format[i] == '%')
 		*ret += print_percent(info);
@@ -203,7 +213,7 @@ int		ft_printf(const char *format, ...)
 		{
 			reset_box(&info);
 			i++;
-			if (format[i] == 0)
+			if (format[i] == '\0')
 				break ;
 			info = fill_flags(format, &i, info);
 			info = fill_precision(format, &i, info);
@@ -229,12 +239,13 @@ int main()
 	int ret_org;
 	int ret_my;
 	// ========= MY =========
-	ret_my = ft_printf("%15.4S\n", L"我是一只猫。");
+	ret_my = ft_printf("%10.15u\n", 301);
 
 	// ========== ORIGINAL ==========
-	ret_org = printf("%15.4s\n", "我是一只猫。");
+	ret_org = printf("%10.15u\n", 300);
 	
 	printf("ORG %d | MY %d\n", ret_org, ret_my);
-
+	while (1)
+		;
 	return (0);
 }

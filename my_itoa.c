@@ -10,10 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "printf.h"
-#include "libft/libft.h"
-
-// int	my_countdigits(intmax_t n);
+#include "ft_printf.h"
 
 static void		fill(intmax_t number, char *str, int len)
 {
@@ -35,7 +32,7 @@ char			*my_itoa(intmax_t number)
 	int		len;
 
 	sign = 0;
-	if (number == (-9223372036854775808))
+	if (number == -9223372036854775808)
 		return (ft_strdup("-9223372036854775808"));
 	if (number < 0)
 	{
