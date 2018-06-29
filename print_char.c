@@ -78,24 +78,7 @@ int		print_char(va_list arg, t_box info)
 		string = ft_strjoin("0", string);
 		free(temp);
 	}
-	if (info.minus)
-	{
-		while (info.start-- > 0)
-		{
-			temp = string;
-			string = ft_strjoin(string, " ");
-			free(temp);
-		}
-	}
-	else
-	{
-		while (info.start-- > 0)
-		{
-			temp = string;
-			string = ft_strjoin(" ", string);
-			free(temp);
-		}
-	}
+	string = output(info, string);
 	output_char(c, info, string);
 	(c == 0) ? (ret = ft_strlen(string) + 1) : (ret = ft_strlen(string));
 	free(string);

@@ -46,5 +46,12 @@ int				print_uni_string(va_list arg, t_box info);
 int				my_countdigits(intmax_t n);
 char			*my_itoa(intmax_t number);
 char			*output(t_box info, char *number);
+int				is_length(char c);
+int				is_flag(char c);
+int				is_correct_type(char t);
+void			reset_box(t_box *info);
+void			put_flag(t_box *info, char c);
+int				sizeof_sym(int c);
+int				print(va_list arg, t_box info);
 
 #endif

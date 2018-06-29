@@ -22,7 +22,9 @@ SRC =	ft_printf.c \
 		print_percent.c \
 		print_string.c \
 		print_char.c \
-		print_uni_string.c
+		print_uni_string.c \
+		is_functions.c \
+		help_functions.c
 
 OBJ = $(SRC:.c=.o)
 

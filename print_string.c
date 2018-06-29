@@ -41,7 +41,10 @@ int		print_string(va_list arg, t_box info)
 	char	*string;
 
 	if (ft_strequ(info.length, "l"))
+	{
+		free(info.length);
 		return (print_uni_string(arg, info));
+	}
 	temp = va_arg(arg, char*);
 	string = ft_strdup(temp);
 	if (temp == 0)
