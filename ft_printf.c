@@ -118,7 +118,6 @@ int		printf_help(const char *format, int i, int *ret, va_list arg)
 int		ft_printf(const char *format, ...)
 {
 	va_list		arg;
-	t_box		info;
 	int			i;
 	int			ret;
 
@@ -142,25 +141,4 @@ int		ft_printf(const char *format, ...)
 		i++;
 	}
 	return (ret);
-}
-
-int main()
-{
-	char *str = "Hello";
-	long nbr = -922337203;
-
-	int nbr2 = -42;
-	setlocale(LC_ALL, "");
-	int ret_org;
-	int ret_my;
-	// ========= MY =========
-	ret_my = ft_printf("%5.14S\n", L"我是一只猫。");
-
-	// ========== ORIGINAL ==========
-	ret_org = printf("%5.14S\n", L"我是一只猫。");
-	
-	printf("ORG %d | MY %d\n", ret_org, ret_my);
-	// while (1)
-	// 	;
-	return (0);
 }

@@ -77,7 +77,6 @@ int			print_octal(va_list arg, t_box info)
 {
 	uintmax_t	nbr;
 	char		*number;
-	char		*temp;
 	int			ret;
 
 	nbr = get_octal(arg, info);

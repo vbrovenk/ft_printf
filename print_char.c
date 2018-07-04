@@ -55,18 +55,12 @@ void	output_char(int c, t_box info, char *string)
 		ft_putstr(string);
 }
 
-int		print_char(va_list arg, t_box info)
+char	*help_print(t_box info, int c, char *string)
 {
-	int		c;
-	char	*string;
-	char	*temp;
-	int		ret;
+	char *temp;
 
-	c = va_arg(arg, int);
 	if ((info.start = info.width - sizeof_sym(c)) < 0)
 		info.start = 0;
-	string = ft_strnew(sizeof_sym(c));
-	uni_char(c, string);
 	if (info.zero == 1 && info.minus == 0)
 	{
 		info.sum_zeroes += info.start;
@@ -80,7 +74,46 @@ int		print_char(va_list arg, t_box info)
 	}
 	string = output(info, string);
 	output_char(c, info, string);
-	(c == 0) ? (ret = ft_strlen(string) + 1) : (ret = ft_strlen(string));
+	return (string);
+}
+
+int		print_uni_char(va_list arg, t_box info)
+{
+	int		c;
+	char	*string;
+	int		ret;
+
+	c = va_arg(arg, int);
+	string = ft_strnew(sizeof_sym(c));
+	uni_char(c, string);
+	string = help_print(info, c, string);
+	if (c == 0)
+		ret = ft_strlen(string) + 1;
+	else
+		ret = ft_strlen(string);
+	free(string);
+	return (ret);
+}
+
+int		print_char(va_list arg, t_box info)
+{
+	char	c;
+	char	*string;
+	int		ret;
+
+	if (ft_strequ(info.length, "l"))
+	{
+		free(info.length);
+		return (print_uni_char(arg, info));
+	}
+	c = (char)va_arg(arg, unsigned int);
+	string = ft_strnew(2);
+	string[0] = c;
+	string = help_print(info, c, string);
+	if (c == 0)
+		ret = ft_strlen(string) + 1;
+	else
+		ret = ft_strlen(string);
 	free(string);
 	return (ret);
 }

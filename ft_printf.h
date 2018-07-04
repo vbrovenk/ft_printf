@@ -41,6 +41,7 @@ int				print_octal(va_list arg, t_box info);
 int				print_percent(t_box info);
 int				print_string(va_list arg, t_box info);
 int				print_char(va_list arg, t_box info);
+int				print_uni_char(va_list arg, t_box info);
 int				sizeof_sym(int c);
 int				print_uni_string(va_list arg, t_box info);
 int				my_countdigits(intmax_t n);

@@ -67,8 +67,10 @@ int		print(va_list arg, t_box info)
 		ret = print_hex(arg, info);
 	else if (info.type == 'o' || info.type == 'O')
 		ret = print_octal(arg, info);
-	else if (info.type == 'c' || info.type == 'C')
+	else if (info.type == 'c')
 		ret = print_char(arg, info);
+	else if (info.type == 'C')
+		ret = print_uni_char(arg, info);
 	else if (info.type == 's')
 		ret = print_string(arg, info);
 	else if (info.type == 'S')

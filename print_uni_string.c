@@ -60,6 +60,29 @@ int		null_str(t_box info)
 	return (ret);
 }
 
+t_box	calc_size(int *string, t_box info)
+{
+	int size;
+	int i;
+
+	i = 0;
+	size = 0;
+	while (string[i] != '\0')
+	{
+		if (info.precision != 0)
+		{
+			if (size + sizeof_sym(string[i]) <= info.precision)
+			{
+				size += sizeof_sym(string[i]);
+			}
+		}
+		i++;
+	}
+	if (info.precision > size)
+		info.start += info.precision - size;
+	return (info);
+}
+
 int		out_uni_str(t_box info, int *string, int length)
 {
 	int temp;
@@ -73,6 +96,7 @@ int		out_uni_str(t_box info, int *string, int length)
 		info.start = info.width;
 	else
 		info.start = info.width - length;
+	info = calc_size(string, info);
 	if (info.minus == 1)
 	{
 		temp += uni_putstr(string, info);
@@ -85,7 +109,6 @@ int		out_uni_str(t_box info, int *string, int length)
 			info.zero ? ret += write(1, "0", 1) : (ret += write(1, " ", 1));
 		temp += uni_putstr(string, info);
 	}
-	(info.precision > temp) ? (temp = info.precision) : temp;
 	return (ret + temp);
 }
 
