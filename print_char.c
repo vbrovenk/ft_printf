@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-void	uni_char(unsigned int c, char *string)
+void	uni_char(int c, char *string)
 {
 	if (c < 128)
 		string[0] = c;
@@ -36,7 +36,7 @@ void	uni_char(unsigned int c, char *string)
 	}
 }
 
-void	output_char(unsigned int c, t_box info, char *string)
+void	output_char(int c, t_box info, char *string)
 {
 	if (c == 0)
 	{
@@ -55,7 +55,7 @@ void	output_char(unsigned int c, t_box info, char *string)
 		ft_putstr(string);
 }
 
-char	*help_print(t_box info, unsigned int c, char *string)
+char	*help_print(t_box info, int c, char *string)
 {
 	char *temp;
 
@@ -79,20 +79,36 @@ char	*help_print(t_box info, unsigned int c, char *string)
 
 int		print_uni_char(va_list arg, t_box info)
 {
-	unsigned int		c;
-	char	*string;
-	int		ret;
+	int c;
+	int ret;
 
-	c = va_arg(arg, unsigned int);
-	string = ft_strnew(sizeof_sym(c));
-	uni_char(c, string);
-	string = help_print(info, c, string);
-	if (c == 0)
-		ret = ft_strlen(string) + 1;
+	ret = 0;
+	c = va_arg(arg, int);
+	if (c != 0)
+		ret += sizeof_sym(c);
+	if ((info.start = info.width - sizeof_sym(c)) < 0)
+		info.start = 0;
+	if (info.zero == 1 && info.minus == 0)
+	{
+		info.sum_zeroes += info.start;
+		info.start = 0;
+	}
+	if (info.zero == 1)
+		while (info.sum_zeroes-- > 0)
+			ret += write (1, "0", 1);
+	if (info.minus == 1)
+	{
+		ft_putchar(c);
+		while (info.start-- > 0)
+			ret += write(1, " ", 1);
+	}
 	else
-		ret = ft_strlen(string);
-	free(string);
-	return (ret);
+	{
+		while (info.start-- > 0)
+			ret += write(1, " ", 1);
+		ft_putchar(c);
+	}
+	return ((c == 0) ? (ret + 1) : ret);
 }
 
 int		print_char(va_list arg, t_box info)
