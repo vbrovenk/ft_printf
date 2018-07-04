@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-void	uni_char(int c, char *string)
+void	uni_char(unsigned int c, char *string)
 {
 	if (c < 128)
 		string[0] = c;
@@ -29,14 +29,14 @@ void	uni_char(int c, char *string)
 	}
 	else
 	{
-		string[0] = (c >> 18 & 7) | 224;
+		string[0] = (c >> 18 & 7) | 240;
 		string[1] = (c >> 12 & 63) | 128;
 		string[2] = (c >> 6 & 63) | 128;
 		string[3] = (c & 63) | 128;
 	}
 }
 
-void	output_char(int c, t_box info, char *string)
+void	output_char(unsigned int c, t_box info, char *string)
 {
 	if (c == 0)
 	{
@@ -55,7 +55,7 @@ void	output_char(int c, t_box info, char *string)
 		ft_putstr(string);
 }
 
-char	*help_print(t_box info, int c, char *string)
+char	*help_print(t_box info, unsigned int c, char *string)
 {
 	char *temp;
 
@@ -79,11 +79,11 @@ char	*help_print(t_box info, int c, char *string)
 
 int		print_uni_char(va_list arg, t_box info)
 {
-	int		c;
+	unsigned int		c;
 	char	*string;
 	int		ret;
 
-	c = va_arg(arg, int);
+	c = va_arg(arg, unsigned int);
 	string = ft_strnew(sizeof_sym(c));
 	uni_char(c, string);
 	string = help_print(info, c, string);

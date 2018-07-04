@@ -43,7 +43,7 @@ int		ft_putchar(wchar_t c)
 	}
 	else
 	{
-		symbol[0] = (c >> 18 & 7) | 224;
+		symbol[0] = (c >> 18 & 7) | 240;
 		symbol[1] = (c >> 12 & 63) | 128;
 		symbol[2] = (c >> 6 & 63) | 128;
 		symbol[3] = (c & 63) | 128;
