@@ -117,8 +117,7 @@ int		print_char(va_list arg, t_box info)
 	char	*string;
 	int		ret;
 
-	// if (info.length[0] == 'l')
-	if (ft_strequ(info.length, "l"))
+	if (ft_strequ(info.length, "l") || ft_strequ(info.length, "ll"))
 	{
 		free(info.length);
 		return (print_uni_char(arg, info));
