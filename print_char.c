@@ -79,11 +79,11 @@ char	*help_print(t_box info, int c, char *string)
 
 int		print_uni_char(va_list arg, t_box info)
 {
-	int c;
+	unsigned int c;
 	int ret;
 
 	ret = 0;
-	c = va_arg(arg, int);
+	c = va_arg(arg,unsigned int);
 	if (c != 0)
 		ret += sizeof_sym(c);
 	if ((info.start = info.width - sizeof_sym(c)) < 0)
@@ -122,7 +122,7 @@ int		print_char(va_list arg, t_box info)
 		free(info.length);
 		return (print_uni_char(arg, info));
 	}
-	c = (char)va_arg(arg, unsigned int);
+	c = (char)va_arg(arg, int);
 	string = ft_strnew(2);
 	string[0] = c;
 	string = help_print(info, c, string);

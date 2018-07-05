@@ -24,7 +24,7 @@ int		sizeof_symbol(int c)
 		return (4);
 }
 
-int		ft_putchar(int c)
+int		ft_putchar(unsigned int c)
 {
 	unsigned char symbol[4];
 
