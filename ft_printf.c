@@ -148,11 +148,12 @@ int		ft_printf(const char *format, ...)
 // 	int ret_org;
 //  	int ret_my;
 //  	setlocale(LC_ALL, "");
+//  	MB_CUR_MAX = 2;
 //  	// ========== ORIGINAL ==========
-// 	ret_org = printf("%C\n", -6);
+// 	ret_org = printf("%C\n", 248);
 
 // 	// ========= MY =========
-// 	ret_my = ft_printf("%C\n", -6);
+// 	ret_my = ft_printf("%C\n", 248);
  	
 // 	printf("ORG %d | MY %d\n", ret_org, ret_my);
 // 	return (0);

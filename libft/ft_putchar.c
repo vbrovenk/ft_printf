@@ -28,7 +28,7 @@ int		ft_putchar(int c)
 {
 	unsigned char symbol[4];
 
-	if (c < 128)
+	if (c < 128 || MB_CUR_MAX < 2)
 		symbol[0] = c;
 	else if (c < 2048)
 	{
