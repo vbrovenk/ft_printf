@@ -12,29 +12,29 @@
 
 #include "ft_printf.h"
 
-void	uni_char(int c, char *string)
-{
-	if (c < 128)
-		string[0] = c;
-	else if (c < 2048)
-	{
-		string[0] = (c >> 6 & 31) | 192;
-		string[1] = (c & 63) | 128;
-	}
-	else if (c < 65536)
-	{
-		string[0] = ((c >> 12) & 15) | 224;
-		string[1] = ((c >> 6) & 63) | 128;
-		string[2] = (c & 63) | 128;
-	}
-	else
-	{
-		string[0] = (c >> 18 & 7) | 240;
-		string[1] = (c >> 12 & 63) | 128;
-		string[2] = (c >> 6 & 63) | 128;
-		string[3] = (c & 63) | 128;
-	}
-}
+// void	uni_char(int c, char *string)
+// {
+// 	if (c < 128)
+// 		string[0] = c;
+// 	else if (c < 2048)
+// 	{
+// 		string[0] = (c >> 6 & 31) | 192;
+// 		string[1] = (c & 63) | 128;
+// 	}
+// 	else if (c < 65536)
+// 	{
+// 		string[0] = ((c >> 12) & 15) | 224;
+// 		string[1] = ((c >> 6) & 63) | 128;
+// 		string[2] = (c & 63) | 128;
+// 	}
+// 	else
+// 	{
+// 		string[0] = (c >> 18 & 7) | 240;
+// 		string[1] = (c >> 12 & 63) | 128;
+// 		string[2] = (c >> 6 & 63) | 128;
+// 		string[3] = (c & 63) | 128;
+// 	}
+// }
 
 void	output_char(int c, t_box info, char *string)
 {
@@ -77,45 +77,45 @@ char	*help_print(t_box info, int c, char *string)
 	return (string);
 }
 
-int		sizeof_uni(unsigned int c)
-{
-	if (c < 128 || MB_CUR_MAX != 4)
-		return (1);
-	else if (c < 2048)
-		return (2);
-	else if (c < 65536)
-		return (3);
-	else
-		return (4);
-}
+// int		sizeof_uni(unsigned int c)
+// {
+// 	if (c < 128 || MB _CUR_MAX != 4)
+// 		return (1);
+// 	else if (c < 2048)
+// 		return (2);
+// 	else if (c < 65536)
+// 		return (3);
+// 	else
+// 		return (4);
+// }
 
-int		uni_putchar(unsigned int c)
-{
-	unsigned char symbol[4];
+// int		uni_putchar(unsigned int c)
+// {
+// 	unsigned char symbol[4];
 
-	if (c < 128 || MB_CUR_MAX != 4)
-		symbol[0] = c;
-	else if (c < 2048)
-	{
-		symbol[0] = (c >> 6 & 31) | 192;
-		symbol[1] = (c & 63) | 128;
-	}
-	else if (c < 65536)
-	{
-		symbol[0] = ((c >> 12) & 15) | 224;
-		symbol[1] = ((c >> 6) & 63) | 128;
-		symbol[2] = (c & 63) | 128;
-	}
-	else
-	{
-		symbol[0] = (c >> 18 & 7) | 240;
-		symbol[1] = (c >> 12 & 63) | 128;
-		symbol[2] = (c >> 6 & 63) | 128;
-		symbol[3] = (c & 63) | 128;
-	}
-	write(1, &symbol, sizeof_uni(c));
-	return (sizeof_uni(c));
-}
+// 	if (c < 128 || MB_CUR_MAX != 4)
+// 		symbol[0] = c;
+// 	else if (c < 2048)
+// 	{
+// 		symbol[0] = (c >> 6 & 31) | 192;
+// 		symbol[1] = (c & 63) | 128;
+// 	}
+// 	else if (c < 65536)
+// 	{
+// 		symbol[0] = ((c >> 12) & 15) | 224;
+// 		symbol[1] = ((c >> 6) & 63) | 128;
+// 		symbol[2] = (c & 63) | 128;
+// 	}
+// 	else
+// 	{
+// 		symbol[0] = (c >> 18 & 7) | 240;
+// 		symbol[1] = (c >> 12 & 63) | 128;
+// 		symbol[2] = (c >> 6 & 63) | 128;
+// 		symbol[3] = (c & 63) | 128;
+// 	}
+// 	write(1, &symbol, sizeof_uni(c));
+// 	return (sizeof_uni(c));
+// }
 
 int		print_uni_char(va_list arg, t_box info)
 {
@@ -126,7 +126,7 @@ int		print_uni_char(va_list arg, t_box info)
 	c = va_arg(arg, unsigned int);
 	if (c != 0)
 		ret += sizeof_sym(c);
-	if ((info.start = info.width - sizeof_uni(c)) < 0)
+	if ((info.start = info.width - sizeof_sym(c)) < 0)
 		info.start = 0;
 	if (info.zero == 1 && info.minus == 0)
 	{
@@ -138,7 +138,7 @@ int		print_uni_char(va_list arg, t_box info)
 			ret += write (1, "0", 1);
 	if (info.minus == 1)
 	{
-		uni_putchar(c);
+		ft_putchar(c);
 		while (info.start-- > 0)
 			ret += write(1, " ", 1);
 	}
@@ -146,7 +146,7 @@ int		print_uni_char(va_list arg, t_box info)
 	{
 		while (info.start-- > 0)
 			ret += write(1, " ", 1);
-		uni_putchar(c);
+		ft_putchar(c);
 	}
 	return ((c == 0) ? (ret + 1) : ret);
 }

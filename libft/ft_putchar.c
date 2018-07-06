@@ -14,7 +14,7 @@
 
 int		sizeof_symbol(int c)
 {
-	if (c < 128)
+	if (c < 128 || MB_CUR_MAX != 4)
 		return (1);
 	else if (c < 2048)
 		return (2);
@@ -28,7 +28,7 @@ int		ft_putchar(int c)
 {
 	unsigned char symbol[4];
 
-	if (c < 128)
+	if (c < 128 || MB_CUR_MAX != 4)
 		symbol[0] = c;
 	else if (c < 2048)
 	{
