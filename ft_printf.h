@@ -14,9 +14,7 @@
 # define FT_PRINTF_H
 
 # include "libft/libft.h"
-# include <inttypes.h>
 # include <stdarg.h>
-# include <limits.h>
 
 typedef	struct	s_box
 {
@@ -44,8 +42,6 @@ int				print_char(va_list arg, t_box info);
 int				print_uni_char(va_list arg, t_box info);
 int				sizeof_sym(int c);
 int				print_uni_string(va_list arg, t_box info);
-int				my_countdigits(intmax_t n);
-char			*my_itoa(intmax_t number);
 char			*output(t_box info, char *number);
 int				is_length(char c);
 int				is_flag(char c);

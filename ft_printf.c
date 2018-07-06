@@ -12,9 +12,8 @@
 
 #include <stdio.h>
 #include "ft_printf.h"
-#include <locale.h>
 
-t_box	fill_flags(const char *format, int *i, t_box info)
+static t_box	fill_flags(const char *format, int *i, t_box info)
 {
 	int		start;
 	char	*temp;
@@ -41,7 +40,7 @@ t_box	fill_flags(const char *format, int *i, t_box info)
 	return (info);
 }
 
-t_box	fill_precision(const char *format, int *i, t_box info)
+static t_box	fill_precision(const char *format, int *i, t_box info)
 {
 	int		start;
 	char	*temp;
@@ -68,7 +67,7 @@ t_box	fill_precision(const char *format, int *i, t_box info)
 	return (info);
 }
 
-int		print_spaces(t_box info)
+static int		print_spaces(t_box info)
 {
 	int ret;
 
@@ -93,7 +92,7 @@ int		print_spaces(t_box info)
 	return (ret);
 }
 
-int		printf_help(const char *format, int i, int *ret, va_list arg)
+static int		printf_help(const char *format, int i, int *ret, va_list arg)
 {
 	t_box info;
 
@@ -115,7 +114,7 @@ int		printf_help(const char *format, int i, int *ret, va_list arg)
 	return (i);
 }
 
-int		ft_printf(const char *format, ...)
+int				ft_printf(const char *format, ...)
 {
 	va_list		arg;
 	int			i;
@@ -142,19 +141,3 @@ int		ft_printf(const char *format, ...)
 	}
 	return (ret);
 }
-
-// int main()
-// {
-// 	int ret_org;
-//  	int ret_my;
-//  	setlocale(LC_ALL, "");
-//  	MB_CUR_MAX = 2;
-//  	// ========== ORIGINAL ==========
-// 	ret_org = printf("%C\n", 248);
-
-// 	// ========= MY =========
-// 	ret_my = ft_printf("%C\n", 248);
- 	
-// 	printf("ORG %d | MY %d\n", ret_org, ret_my);
-// 	return (0);
-// }

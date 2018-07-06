@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_countdigits(int n)
+#include "libft.h"
+
+int	ft_countdigits(intmax_t n)
 {
 	int	i;
 
@@ -18,7 +20,10 @@ int	ft_countdigits(int n)
 	if (n == 0)
 		return (1);
 	if (n < 0)
+	{
 		i = 1;
+		n = -n;
+	}
 	while (n)
 	{
 		i++;

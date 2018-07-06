@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-int		uni_putstr(int *string, t_box info)
+static int		uni_putstr(int *string, t_box info)
 {
 	int temp;
 	int i;
@@ -39,7 +39,7 @@ int		uni_putstr(int *string, t_box info)
 	return (temp);
 }
 
-int		null_str(t_box info)
+static int		null_str(t_box info)
 {
 	int ret;
 
@@ -60,7 +60,7 @@ int		null_str(t_box info)
 	return (ret);
 }
 
-t_box	calc_size(int *string, t_box info)
+static t_box	calc_size(int *string, t_box info)
 {
 	int size;
 	int i;
@@ -83,7 +83,7 @@ t_box	calc_size(int *string, t_box info)
 	return (info);
 }
 
-int		out_uni_str(t_box info, int *string, int length)
+static int		out_uni_str(t_box info, int *string, int length)
 {
 	int temp;
 	int ret;
@@ -112,7 +112,7 @@ int		out_uni_str(t_box info, int *string, int length)
 	return (ret + temp);
 }
 
-int		print_uni_string(va_list arg, t_box info)
+int				print_uni_string(va_list arg, t_box info)
 {
 	int		*string;
 	int		length;

@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-int		ft_count(uintmax_t n, int base)
+static int	ft_count(uintmax_t n, int base)
 {
 	int	i;
 
@@ -27,7 +27,7 @@ int		ft_count(uintmax_t n, int base)
 	return (i);
 }
 
-char	*ft_itoa_base(uintmax_t n, int base, int flag)
+char		*ft_itoa_base(uintmax_t n, int base, int flag)
 {
 	char	*str;
 	int		len;

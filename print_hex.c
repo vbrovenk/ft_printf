@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-uintmax_t	get_hex(va_list arg, t_box info)
+static uintmax_t	get_hex(va_list arg, t_box info)
 {
 	uintmax_t nbr;
 
@@ -36,7 +36,7 @@ uintmax_t	get_hex(va_list arg, t_box info)
 	return (nbr);
 }
 
-void		calc_spaces_hex(t_box *info, char *number, uintmax_t nbr)
+static void			calc_spaces_hex(t_box *info, char *number, uintmax_t nbr)
 {
 	info->sum_zeroes = info->precision - ft_strlen(number);
 	if (info->sum_zeroes < 0)
@@ -64,7 +64,7 @@ void		calc_spaces_hex(t_box *info, char *number, uintmax_t nbr)
 	}
 }
 
-char		*define_hex(t_box info, uintmax_t nbr)
+static char			*define_hex(t_box info, uintmax_t nbr)
 {
 	char *number;
 
@@ -81,7 +81,7 @@ char		*define_hex(t_box info, uintmax_t nbr)
 	return (number);
 }
 
-int			print_hex(va_list arg, t_box info)
+int					print_hex(va_list arg, t_box info)
 {
 	uintmax_t	nbr;
 	char		*number;

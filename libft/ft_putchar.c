@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-int		sizeof_symbol(int c)
+static int	sizeof_symbol(int c)
 {
 	if (c < 128 || MB_CUR_MAX != 4)
 		return (1);
@@ -24,7 +24,7 @@ int		sizeof_symbol(int c)
 		return (4);
 }
 
-int		ft_putchar(int c)
+int			ft_putchar(int c)
 {
 	unsigned char symbol[4];
 

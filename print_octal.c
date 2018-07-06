@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-uintmax_t	get_octal(va_list arg, t_box info)
+static uintmax_t	get_octal(va_list arg, t_box info)
 {
 	uintmax_t nbr;
 
@@ -34,7 +34,7 @@ uintmax_t	get_octal(va_list arg, t_box info)
 	return (nbr);
 }
 
-void		calc_spaces_oct(t_box *info, char *number)
+static void			calc_spaces_oct(t_box *info, char *number)
 {
 	info->sum_zeroes = info->precision - ft_strlen(number);
 	if (info->sum_zeroes < 0)
@@ -54,7 +54,7 @@ void		calc_spaces_oct(t_box *info, char *number)
 	}
 }
 
-char		*out_octal(t_box info, char *number)
+static char			*out_octal(t_box info, char *number)
 {
 	char *temp;
 
@@ -73,7 +73,7 @@ char		*out_octal(t_box info, char *number)
 	return (number);
 }
 
-int			print_octal(va_list arg, t_box info)
+int					print_octal(va_list arg, t_box info)
 {
 	uintmax_t	nbr;
 	char		*number;

@@ -12,43 +12,42 @@
 
 #include "libft.h"
 
-static void	ft_put(char *s, int n, int len)
+static void		fill(intmax_t number, char *str, int len)
 {
-	int i;
-	int end;
-
-	i = len;
-	if (n < 0)
+	if (number == 0)
+		str[0] = '0';
+	str[len--] = '\0';
+	while (number > 0)
 	{
-		s[0] = '-';
-		n *= -1;
-		end = 1;
-	}
-	else
-		end = 0;
-	len -= 1;
-	while (len >= end)
-	{
-		s[len] = n % 10 + '0';
-		n /= 10;
+		str[len] = number % 10 + '0';
+		number /= 10;
 		len--;
 	}
-	s[i] = '\0';
 }
 
-char		*ft_itoa(int n)
+char			*ft_itoa(intmax_t number)
 {
-	char	*str;
+	char	*res;
+	int		sign;
 	int		len;
 
-	len = ft_countdigits(n);
-	if (!(str = ft_strnew(len)))
-		return (NULL);
-	if (n == (-2147483648))
+	sign = 0;
+	if (number < -9223372036854775807)
+		return (ft_strdup("-9223372036854775808"));
+	if (number < 0)
 	{
-		ft_strcpy(str, "-2147483648");
-		return (str);
+		number *= -1;
+		sign = 1;
 	}
-	ft_put(str, n, len);
-	return (str);
+	len = ft_countdigits(number);
+	res = (char*)malloc(sizeof(char) * (len + sign + 1));
+	if (!res)
+		return (0);
+	if (sign == 1)
+	{
+		res[0] = '-';
+		len++;
+	}
+	fill(number, res, len);
+	return (res);
 }

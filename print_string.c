@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-int		output_str(t_box info, char *string)
+static int		output_str(t_box info, char *string)
 {
 	char	*temp;
 	int		ret;
@@ -35,7 +35,7 @@ int		output_str(t_box info, char *string)
 	return (ret);
 }
 
-int		print_string(va_list arg, t_box info)
+int				print_string(va_list arg, t_box info)
 {
 	char	*temp;
 	char	*string;

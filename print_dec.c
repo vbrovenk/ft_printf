@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-intmax_t	get_nbr(va_list arg, t_box info)
+static intmax_t	get_nbr(va_list arg, t_box info)
 {
 	intmax_t nbr;
 
@@ -34,7 +34,7 @@ intmax_t	get_nbr(va_list arg, t_box info)
 	return (nbr);
 }
 
-t_box		calc_spaces(t_box info, char *number, intmax_t nbr)
+static t_box	calc_spaces(t_box info, char *number, intmax_t nbr)
 {
 	if ((info.sum_zeroes = info.precision - ft_strlen(number)) < 0)
 		info.sum_zeroes = 0;
@@ -60,7 +60,7 @@ t_box		calc_spaces(t_box info, char *number, intmax_t nbr)
 	return (info);
 }
 
-char		*change_num(char *number, t_box *info, intmax_t nbr)
+static char		*change_num(char *number, t_box *info, intmax_t nbr)
 {
 	char *temp;
 
@@ -80,7 +80,7 @@ char		*change_num(char *number, t_box *info, intmax_t nbr)
 	return (temp);
 }
 
-char		*output(t_box info, char *number)
+char			*output(t_box info, char *number)
 {
 	char	*temp;
 
@@ -105,7 +105,7 @@ char		*output(t_box info, char *number)
 	return (number);
 }
 
-int			print_dec(va_list arg, t_box info)
+int				print_dec(va_list arg, t_box info)
 {
 	intmax_t	nbr;
 	char		*number;
@@ -113,7 +113,7 @@ int			print_dec(va_list arg, t_box info)
 	int			ret;
 
 	nbr = get_nbr(arg, info);
-	number = my_itoa(nbr);
+	number = ft_itoa(nbr);
 	number = change_num(number, &info, nbr);
 	info = calc_spaces(info, number, nbr);
 	while (info.sum_zeroes-- > 0)

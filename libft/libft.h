@@ -16,7 +16,6 @@
 # include <string.h>
 # include <stdlib.h>
 # include <unistd.h>
-# include <inttypes.h>
 
 typedef	struct		s_list
 {
@@ -69,7 +68,7 @@ char				*ft_strsub(char const *s, unsigned int start, size_t len);
 char				*ft_strjoin(char const *s1, char const *s2);
 char				*ft_strtrim(char const *s);
 char				**ft_strsplit(char const *s, char c);
-char				*ft_itoa(int n);
+char				*ft_itoa(intmax_t n);
 char				*ft_itoa_base(uintmax_t n, int base, int flag);
 int					ft_putchar(int c);
 int					ft_putstr(char const *s);
@@ -85,7 +84,7 @@ void				ft_lstdel(t_list **alst, void (*del)(void *, size_t));
 void				ft_lstadd(t_list **alst, t_list *new);
 void				ft_lstiter(t_list *lst, void (*f)(t_list *elem));
 t_list				*ft_lstmap(t_list *lst, t_list *(*f)(t_list *elem));
-int					ft_countdigits(int n);
+int					ft_countdigits(intmax_t n);
 int					ft_isspace(char c);
 int					ft_list_size(t_list *begin_list);
 int					ft_isprime(int num);

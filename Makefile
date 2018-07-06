@@ -13,8 +13,6 @@
 NAME = libftprintf.a
 
 SRC =	ft_printf.c \
-		my_countdigits.c \
-		my_itoa.c \
 		print_dec.c \
 		print_unsigned.c \
 		print_hex.c \
